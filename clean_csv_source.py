@@ -10,7 +10,7 @@ with open(input_file_path, mode="r", newline="", encoding="utf-8") as infile, op
 ) as outfile:
     reader = csv.DictReader(infile)
     writer = csv.DictWriter(
-        outfile, fieldnames=["item_id", "description", "quantity", "price"]
+        outfile, fieldnames=["external_id", "description", "quantity", "price"]
     )
 
     writer.writeheader()
@@ -19,7 +19,7 @@ with open(input_file_path, mode="r", newline="", encoding="utf-8") as infile, op
         quantity = int(float(row["Qty on H"]))
 
         new_row = {
-            "item_id": row["Item ID"],
+            "external_id": row["Item ID"],
             "description": row["Item Description"],
             "quantity": quantity,
             "price": row["Last"],
