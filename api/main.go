@@ -1,10 +1,13 @@
 package main
 
 import (
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
+
+	_ "github.com/lib/pq"
 )
 
 type Item struct {
@@ -16,7 +19,24 @@ type Item struct {
 }
 
 func main() {
-	fmt.Printf("Starting server on port 8000")
+	fmt.Println("Connecting to database...")
+
+	dsn := "postgresql://postgres:postgres@localhost:5432/mdg?sslmode=disable"
+	db, err := sql.Open("postgres", dsn)
+	if err != nil {
+		log.Fatal("Error opening connection to database", err)
+	}
+
+	defer db.Close()
+
+	err = db.Ping()
+	if err != nil {
+		log.Fatalf("Error connecting to database: %v\n", err)
+	}
+
+	fmt.Println("Connection to dabase succesfully established!")
+
+	fmt.Println("Starting server on port 8000")
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "status: ok")
