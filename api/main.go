@@ -11,18 +11,21 @@ import (
 )
 
 type Item struct {
-	ID          int     `json:"id"`
-	ExternalID  string  `json:"external_id"`
-	Description string  `json:"description"`
-	Price       int     `json:"price"`
-	Quantity    float64 `json:"quantity"`
+	ID          string   `json:"id"`
+	ExternalID  string   `json:"external_id"`
+	Description string   `json:"description"`
+	Price       *float64 `json:"price"`
+	Quantity    *int     `json:"quantity"`
 }
+
+var db *sql.DB
 
 func main() {
 	fmt.Println("Connecting to database...")
 
 	dsn := "postgresql://postgres:postgres@localhost:5432/mdg?sslmode=disable"
-	db, err := sql.Open("postgres", dsn)
+	var err error
+	db, err = sql.Open("postgres", dsn)
 	if err != nil {
 		log.Fatal("Error opening connection to database", err)
 	}
@@ -59,9 +62,54 @@ func main() {
 
 func handleGet(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	err := json.NewEncoder(w).Encode(Item{ID: 1, ExternalID: "001", Description: "Sample Data", Price: 10, Quantity: 2})
+
+	items, err := allItems()
+	if err != nil {
+		http.Error(w, err.Error(), 500)
+	}
+
+	err = json.NewEncoder(w).Encode(items)
 	if err != nil {
 		http.Error(w, err.Error(), 500)
 		return
 	}
+}
+
+func allItems() ([]Item, error) {
+	var items []Item
+	rows, err := db.Query("SELECT * FROM item LIMIT 10")
+	if err != nil {
+		return nil, fmt.Errorf("allItems: %v", err)
+	}
+
+	defer rows.Close()
+
+	for rows.Next() {
+		var (
+			item     Item
+			price    sql.NullFloat64
+			quantity sql.NullInt64
+		)
+
+		if err := rows.Scan(&item.ID, &item.ExternalID, &item.Description, &price, &quantity); err != nil {
+			return nil, fmt.Errorf("allItems: %v", err)
+		}
+
+		if price.Valid {
+			item.Price = &price.Float64
+		}
+
+		if quantity.Valid {
+			qty := int(quantity.Int64)
+			item.Quantity = &qty
+		}
+
+		items = append(items, item)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("allItems: %v", err)
+	}
+
+	return items, nil
 }
