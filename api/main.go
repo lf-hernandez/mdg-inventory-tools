@@ -42,14 +42,14 @@ func main() {
 
 	fmt.Println("Starting server on port 8000")
 
-	http.HandleFunc("/", handleRoot)
-	http.HandleFunc("/api/items/", handleItems)
-	http.HandleFunc("/api/item/", handleItem)
+	http.HandleFunc("/", routeRoot)
+	http.HandleFunc("/api/items/", routeItems)
+	http.HandleFunc("/api/item/", routeItem)
 
 	log.Fatal(http.ListenAndServe(":8000", nil))
 }
 
-func handleRoot(w http.ResponseWriter, r *http.Request) {
+func routeRoot(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "GET":
 		fmt.Fprintf(w, "status: ok")
@@ -64,7 +64,7 @@ func handleRoot(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func handleItems(w http.ResponseWriter, r *http.Request) {
+func routeItems(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "GET":
 		handleGetItems(w, r)
@@ -79,10 +79,10 @@ func handleItems(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func handleItem(w http.ResponseWriter, r *http.Request) {
+func routeItem(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "GET":
-		handleGetItem(w, r)
+		fetchDbItem(w, r)
 	case "POST":
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 	case "PUT":
@@ -97,19 +97,20 @@ func handleItem(w http.ResponseWriter, r *http.Request) {
 func handleGetItems(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	items, err := getItems()
+	items, err := fetchDbItems()
 	if err != nil {
-		http.Error(w, err.Error(), 500)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
 
 	err = json.NewEncoder(w).Encode(items)
 	if err != nil {
-		http.Error(w, err.Error(), 500)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 }
 
-func getItems() ([]Item, error) {
+func fetchDbItems() ([]Item, error) {
 	var items []Item
 	rows, err := db.Query("SELECT * FROM item LIMIT 10")
 	if err != nil {
@@ -148,22 +149,22 @@ func getItems() ([]Item, error) {
 	return items, nil
 }
 
-func handleGetItem(w http.ResponseWriter, r *http.Request) {
-	path, err := parsePathParam(r, "/api/item/")
+func fetchDbItem(w http.ResponseWriter, r *http.Request) {
+	itemId, err := extractPathParam(r, "/api/item/")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	fmt.Fprintf(w, "You requested item ID: %s", path)
+	fmt.Fprintf(w, "You requested item ID: %s", itemId)
 }
 
-func parsePathParam(r *http.Request, routePrefix string) (string, error) {
-	path := strings.TrimPrefix(r.URL.Path, routePrefix)
+func extractPathParam(r *http.Request, routePrefix string) (string, error) {
+	param := strings.TrimPrefix(r.URL.Path, routePrefix)
 
-	if path == "" || path == "/" {
+	if param == "" || param == "/" {
 		return "", fmt.Errorf("parameter is required")
 	}
 
-	return path, nil
+	return param, nil
 }
