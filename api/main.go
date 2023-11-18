@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strings"
 
 	_ "github.com/lib/pq"
 )
@@ -41,29 +42,62 @@ func main() {
 
 	fmt.Println("Starting server on port 8000")
 
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintf(w, "status: ok")
-	})
-
-	http.HandleFunc("/api/items", func(w http.ResponseWriter, r *http.Request) {
-		switch r.Method {
-		case "GET":
-			handleGet(w, r)
-		case "POST":
-		case "PUT":
-		case "DELETE":
-		default:
-			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		}
-	})
+	http.HandleFunc("/", handleRoot)
+	http.HandleFunc("/api/items/", handleItems)
+	http.HandleFunc("/api/item/", handleItem)
 
 	log.Fatal(http.ListenAndServe(":8000", nil))
 }
 
-func handleGet(w http.ResponseWriter, r *http.Request) {
+func handleRoot(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case "GET":
+		fmt.Fprintf(w, "status: ok")
+	case "POST":
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+	case "PUT":
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+	case "DELETE":
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+	default:
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+	}
+}
+
+func handleItems(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case "GET":
+		handleGetItems(w, r)
+	case "POST":
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+	case "PUT":
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+	case "DELETE":
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+	default:
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+	}
+}
+
+func handleItem(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case "GET":
+		handleGetItem(w, r)
+	case "POST":
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+	case "PUT":
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+	case "DELETE":
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+	default:
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+	}
+}
+
+func handleGetItems(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	items, err := allItems()
+	items, err := getItems()
 	if err != nil {
 		http.Error(w, err.Error(), 500)
 	}
@@ -75,7 +109,7 @@ func handleGet(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func allItems() ([]Item, error) {
+func getItems() ([]Item, error) {
 	var items []Item
 	rows, err := db.Query("SELECT * FROM item LIMIT 10")
 	if err != nil {
@@ -112,4 +146,24 @@ func allItems() ([]Item, error) {
 	}
 
 	return items, nil
+}
+
+func handleGetItem(w http.ResponseWriter, r *http.Request) {
+	path, err := parsePathParam(r, "/api/item/")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	fmt.Fprintf(w, "You requested item ID: %s", path)
+}
+
+func parsePathParam(r *http.Request, routePrefix string) (string, error) {
+	path := strings.TrimPrefix(r.URL.Path, routePrefix)
+
+	if path == "" || path == "/" {
+		return "", fmt.Errorf("parameter is required")
+	}
+
+	return path, nil
 }
