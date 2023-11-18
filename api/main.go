@@ -82,7 +82,7 @@ func routeItems(w http.ResponseWriter, r *http.Request) {
 func routeItem(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "GET":
-		fetchDbItem(w, r)
+		handleGetItem(w, r)
 	case "POST":
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 	case "PUT":
@@ -107,6 +107,33 @@ func handleGetItems(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
+	}
+}
+
+func handleGetItem(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	itemId, err := extractPathParam(r, "/api/item/")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	item, err := fetchDbItem(itemId)
+	if err != nil {
+		var statusCode int
+		switch err {
+		case sql.ErrNoRows:
+			statusCode = http.StatusNotFound
+		default:
+			statusCode = http.StatusInternalServerError
+		}
+		http.Error(w, fmt.Sprintf("Error fetching item: %v", err), statusCode)
+		return
+	}
+
+	if err := json.NewEncoder(w).Encode(item); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 }
 
@@ -149,14 +176,26 @@ func fetchDbItems() ([]Item, error) {
 	return items, nil
 }
 
-func fetchDbItem(w http.ResponseWriter, r *http.Request) {
-	itemId, err := extractPathParam(r, "/api/item/")
+func fetchDbItem(itemId string) (Item, error) {
+	var item Item
+	var price sql.NullFloat64
+	var quantity sql.NullInt64
+
+	err := db.QueryRow("SELECT * FROM item WHERE external_id = $1", itemId).Scan(&item.ID, &item.ExternalID, &item.Description, &price, &quantity)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
+		return Item{}, err
 	}
 
-	fmt.Fprintf(w, "You requested item ID: %s", itemId)
+	if price.Valid {
+		item.Price = &price.Float64
+	}
+
+	if quantity.Valid {
+		qty := int(quantity.Int64)
+		item.Quantity = &qty
+	}
+
+	return item, nil
 }
 
 func extractPathParam(r *http.Request, routePrefix string) (string, error) {
