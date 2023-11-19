@@ -86,7 +86,7 @@ func routeItem(w http.ResponseWriter, r *http.Request) {
 	case "POST":
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 	case "PUT":
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		handleUpdateItem(w, r)
 	case "DELETE":
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 	default:
@@ -136,6 +136,38 @@ func handleGetItem(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 }
+
+func handleUpdateItem(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	itemId, err := extractPathParam(r, "/api/item")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	var updatedItem Item
+	err = json.NewDecoder(r.Body).Decode(&updatedItem)
+	if err != nil {
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	updatedItem.ID = itemId
+	err = updateDbItem(&updatedItem)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			http.Error(w, "Item not found", http.StatusNotFound)
+		} else {
+			http.Error(w, fmt.Sprintf("Error updating item: %v", err), http.StatusInternalServerError)
+		}
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(updatedItem)
+}
+
 
 func fetchDbItems() ([]Item, error) {
 	var items []Item
@@ -198,6 +230,26 @@ func fetchDbItem(itemId string) (Item, error) {
 	return item, nil
 }
 
+func updateDbItem(item *Item) error {
+	if err := validateItem(item); err != nil {
+		return err
+	}
+
+	stmt, err := db.Prepare("UPDATE item SET description = $1, price = $2, quantity = $3 WHERE id = $4")
+	if err != nil {
+		return fmt.Errorf("updateDbItem: %v", err)
+	}
+	defer stmt.Close()
+
+	_, err = stmt.Exec(item.Description, item.Price, item.Quantity, item.ID)
+	if err != nil {
+		return fmt.Errorf("e rror updating item: %v", err)
+	}
+
+	return nil
+}
+
+
 func extractPathParam(r *http.Request, routePrefix string) (string, error) {
 	param := strings.TrimPrefix(r.URL.Path, routePrefix)
 
@@ -206,4 +258,28 @@ func extractPathParam(r *http.Request, routePrefix string) (string, error) {
 	}
 
 	return param, nil
+}
+
+func validateItem(item *Item) error {
+	if item.ID == "" {
+		return fmt.Errorf("ID is required")
+	}
+
+	if item.ExternalID == "" {
+		return fmt.Errorf("external ID is required")
+	}
+
+	if item.Price == nil {
+		return fmt.Errorf("price is requried")
+	}
+
+	if item.Price != nil && *item.Price < 0 {
+		return fmt.Errorf("price must be non-negative")
+	}
+
+	if item.Quantity == nil {
+		return fmt.Errorf("quantity is required")
+	}
+
+	return nil
 }
