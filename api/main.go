@@ -51,13 +51,13 @@ func main() {
 
 func routeRoot(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
-	case "GET":
+	case http.MethodGet:
 		fmt.Fprintf(w, "status: ok")
-	case "POST":
+	case http.MethodPost:
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-	case "PUT":
+	case http.MethodPut:
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-	case "DELETE":
+	case http.MethodDelete:
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 	default:
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -66,13 +66,13 @@ func routeRoot(w http.ResponseWriter, r *http.Request) {
 
 func routeItems(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
-	case "GET":
+	case http.MethodGet:
 		handleGetItems(w, r)
-	case "POST":
+	case http.MethodPost:
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-	case "PUT":
+	case http.MethodPut:
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-	case "DELETE":
+	case http.MethodDelete:
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 	default:
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -81,13 +81,13 @@ func routeItems(w http.ResponseWriter, r *http.Request) {
 
 func routeItem(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
-	case "GET":
+	case http.MethodGet:
 		handleGetItem(w, r)
-	case "POST":
+	case http.MethodPost:
 		handleCreateItem(w, r)
-	case "PUT":
+	case http.MethodPut:
 		handleUpdateItem(w, r)
-	case "DELETE":
+	case http.MethodDelete:
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 	default:
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -171,7 +171,7 @@ func handleUpdateItem(w http.ResponseWriter, r *http.Request) {
 func handleCreateItem(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	if r.Method != "POST" {
+	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
