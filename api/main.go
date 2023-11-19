@@ -84,7 +84,7 @@ func routeItem(w http.ResponseWriter, r *http.Request) {
 	case "GET":
 		handleGetItem(w, r)
 	case "POST":
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		handleCreateItem(w, r)
 	case "PUT":
 		handleUpdateItem(w, r)
 	case "DELETE":
@@ -168,6 +168,35 @@ func handleUpdateItem(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(updatedItem)
 }
 
+func handleCreateItem(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	if r.Method != "POST" {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	var newItem Item
+	err := json.NewDecoder(r.Body).Decode(&newItem)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	if err := validateItem(&newItem); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	createdItem, err := createDbItem(newItem)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Error creating item: %v", err), http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusCreated)
+	json.NewEncoder(w).Encode(createdItem)
+}
 
 func fetchDbItems() ([]Item, error) {
 	var items []Item
@@ -249,6 +278,22 @@ func updateDbItem(item *Item) error {
 	return nil
 }
 
+func createDbItem(item Item) (Item, error) {
+	stmt, err := db.Prepare("INSERT INTO item (external_id, description, price, quantity) VALUES ($1, $2, $3, $4) RETURNING id")
+	if err != nil {
+		return Item{}, fmt.Errorf("createDbItem: %v", err)
+	}
+	defer stmt.Close()
+
+	var id string
+	err = stmt.QueryRow(item.ExternalID, item.Description, item.Price, item.Quantity).Scan(&id)
+	if err != nil {
+		return Item{}, fmt.Errorf("createDbItem: %v", err)
+	}
+
+	item.ID = id
+	return item, nil
+}
 
 func extractPathParam(r *http.Request, routePrefix string) (string, error) {
 	param := strings.TrimPrefix(r.URL.Path, routePrefix)
