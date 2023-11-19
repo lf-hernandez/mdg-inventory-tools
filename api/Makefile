@@ -8,7 +8,7 @@ vet: fmt
 	go vet ./...
 
 build: vet
-	go build
+	go build -o mdg-inventory-api
 
 clean:
 	go clean

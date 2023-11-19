@@ -166,7 +166,7 @@ cython_debug/
 ### Go Ignore ###
 
 # Binaries for programs and plugins
-api
+mdg-inventory-api
 *.exe
 *.exe~
 *.dll

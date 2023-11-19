@@ -20,5 +20,5 @@ To build and start the web server:
 ```bash
 cd /api
 make
-./api
+./mdg-inventory-api
 ```
