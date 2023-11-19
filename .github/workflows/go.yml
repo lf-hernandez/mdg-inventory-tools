@@ -1,0 +1,28 @@
+name: Server CI
+
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - 'api/**/*.go'
+  pull_request:
+    branches: [ "main" ]
+    paths:
+      - 'api/**/*.go'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: '1.21'
+
+    - name: Change to API directory
+      run: cd api
+
+    - name: Build using Makefile
+      run: make
