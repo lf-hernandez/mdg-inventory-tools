@@ -1,5 +1,7 @@
 # mdg-inventory-tools
 
+[![Server CI](https://github.com/lf-hernandez/mdg-inventory-tools/actions/workflows/go.yml/badge.svg)](https://github.com/lf-hernandez/mdg-inventory-tools/actions/workflows/go.yml)
+
 ## Docker Setup
 
 To build and run the Docker container:
