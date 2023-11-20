@@ -2,13 +2,11 @@ package main
 
 import (
 	"fmt"
-	"net/http"
 	"strings"
 )
 
-func extractPathParam(r *http.Request, routePrefix string) (string, error) {
-	param := strings.TrimPrefix(r.URL.Path, routePrefix)
-
+func extractPathParam(path string, routePrefix string) (string, error) {
+	param := strings.TrimPrefix(path, routePrefix)
 	if param == "" || param == "/" {
 		return "", fmt.Errorf("parameter is required")
 	}

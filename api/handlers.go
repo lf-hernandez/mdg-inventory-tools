@@ -26,7 +26,7 @@ func handleGetItems(w http.ResponseWriter, r *http.Request) {
 func handleGetItem(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	itemId, err := extractPathParam(r, "/api/item/")
+	itemId, err := extractPathParam(r.URL.Path, "/api/item/")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -53,7 +53,7 @@ func handleGetItem(w http.ResponseWriter, r *http.Request) {
 func handleUpdateItem(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	itemId, err := extractPathParam(r, "/api/item")
+	itemId, err := extractPathParam(r.URL.Path, "/api/item")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return

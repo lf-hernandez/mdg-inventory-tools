@@ -1,29 +1,38 @@
 name: Server CI
 
 on:
-    push:
-        branches: ['main']
-        paths:
-            - 'api/**/*.go'
-    pull_request:
-        branches: ['main']
-        paths:
-            - 'api/**/*.go'
-
+  push:
+    paths:
+      - 'api/**/*.go'
+  pull_request:
+    paths:
+      - 'api/**/*.go'
 defaults:
-    run:
-        shell: bash
-        working-directory: ./api
+  run:
+    shell: bash
+    working-directory: ./api
 jobs:
-    build:
-        runs-on: ubuntu-latest
-        steps:
-            - uses: actions/checkout@v4
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.21'
+      - name: Build using Makefile
+        run: make build
 
-            - name: Set up Go
-              uses: actions/setup-go@v4
-              with:
-                  go-version: '1.21'
+  test:
+    runs-on: ubuntu-latest
 
-            - name: Build using Makefile
-              run: make build
+    steps:
+      - uses: actions/checkout@v4 
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.21'
+      - name: Run tests
+        run: make test
+              

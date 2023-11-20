@@ -13,5 +13,8 @@ build: vet
 run: build
 	./bin/mdg-inventory-api
 
+test:
+	go test ./...
+
 clean:
 	go clean
