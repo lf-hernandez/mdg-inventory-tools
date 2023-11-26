@@ -9,34 +9,50 @@ func fetchDbItems() ([]Item, error) {
 	var items []Item
 	rows, err := db.Query("SELECT * FROM item LIMIT 10")
 	if err != nil {
-		return nil, fmt.Errorf("allItems: %v", err)
+		return nil, fmt.Errorf("error exectuting query: %v", err)
 	}
 
 	defer rows.Close()
 
 	for rows.Next() {
 		var (
-			item     Item
-			price    sql.NullFloat64
-			quantity sql.NullInt64
+			item          Item
+			price         sql.NullFloat64
+			quantity      sql.NullInt64
+			serialNumber  sql.NullString
+			purchaseOrder sql.NullString
+			category      sql.NullString
+			inventoryID   sql.NullString
 		)
 
 		if err := rows.Scan(
 			&item.ID,
 			&item.PartNumber,
-			&item.SerialNumber,
-			&item.Category,
+			&serialNumber,
+			&category,
 			&item.Description,
 			&price,
 			&quantity,
-			&item.PurchaseOrder); err != nil {
-			return nil, fmt.Errorf("allItems: %v", err)
+			&purchaseOrder,
+			&inventoryID); err != nil {
+			return nil, fmt.Errorf("error scanning row: %v", err)
 		}
 
+		if serialNumber.Valid {
+			item.SerialNumber = serialNumber.String
+		}
+		if purchaseOrder.Valid {
+			item.PurchaseOrder = purchaseOrder.String
+		}
+		if category.Valid {
+			item.Category = category.String
+		}
+		if inventoryID.Valid {
+			item.InventoryID = inventoryID.String
+		}
 		if price.Valid {
 			item.Price = &price.Float64
 		}
-
 		if quantity.Valid {
 			qty := int(quantity.Int64)
 			item.Quantity = &qty
@@ -46,7 +62,7 @@ func fetchDbItems() ([]Item, error) {
 	}
 
 	if err := rows.Err(); err != nil {
-		return nil, fmt.Errorf("allItems: %v", err)
+		return nil, fmt.Errorf("error in fetch and iteration over rows: %v", err)
 	}
 
 	return items, nil

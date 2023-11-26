@@ -9,4 +9,17 @@ type Item struct {
 	Category      string   `json:"category"`
 	Price         *float64 `json:"price"`
 	Quantity      *int     `json:"quantity"`
+	InventoryID   string   `json:"inventory_id"`
+}
+
+type Inventory struct {
+	ID   string `json:"id"`
+	Name string `json:"name"`
+}
+
+type User struct {
+	ID       string `json:"id"`
+	Name     string `json:"name"`
+	Email    string `json:"email"`
+	Password string `json:"password"`
 }

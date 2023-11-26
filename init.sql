@@ -1,8 +1,8 @@
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 CREATE TABLE inventory (
-    inventory_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    inventory_name TEXT NOT NULL
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    name TEXT NOT NULL
 );
 
 CREATE TABLE item (
