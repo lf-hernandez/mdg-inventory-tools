@@ -8,7 +8,8 @@ To build and run the Docker container:
 
 ```bash
 docker build -t mdg-postgres .
-docker run -p 5432:5432 --name mdg-database -d mdg-postgres
+docker volume create postgres_data
+docker run -d --name mdg-database -e POSTGRES_DB=mdg -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=postgres -v postgres_data:/var/lib/postgresql/data -p 5432:5432 mdg-postgres
 ```
 
 ## Go Server
