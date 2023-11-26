@@ -104,7 +104,7 @@ func updateDbItem(item *Item) error {
 }
 
 func createDbItem(item Item) (Item, error) {
-	stmt, err := db.Prepare("INSERT INTO item (part_number, serial_number, categroy, description, price, quantity, purchase_order) VALUES ($1, $2, $3, $4, $6, $7) RETURNING id")
+	stmt, err := db.Prepare("INSERT INTO item (part_number, serial_number, category, description, price, quantity, purchase_order) VALUES ($1, $2, $3, $4, $6, $7) RETURNING id")
 	if err != nil {
 		return Item{}, fmt.Errorf("createDbItem: %v", err)
 	}
