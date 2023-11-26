@@ -1,9 +1,9 @@
 SELECT
-	external_id,
-	count(external_id)
+	part_number,
+	count(part_number)
 FROM
 	item
 GROUP BY
-	external_id
+	part_number
 HAVING
-	count(external_id) > 1;
+	count(part_number) > 1;

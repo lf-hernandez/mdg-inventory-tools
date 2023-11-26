@@ -1,7 +1,7 @@
 BEGIN;
 WITH summed_quantities AS (
 	SELECT
-		external_id,
+		part_number,
 		sum(
 			CASE WHEN quantity >= 0 THEN
 				quantity
@@ -11,7 +11,7 @@ WITH summed_quantities AS (
 	FROM
 		item
 	GROUP BY
-		external_id
+		part_number
 	HAVING
 		count(*) > 1
 ),
@@ -23,21 +23,21 @@ updated AS (
 	FROM
 		summed_quantities sq
 	WHERE
-		item.external_id = sq.external_id
+		item.part_number = sq.part_number
 		AND item.id = (
 			SELECT
 				id
 			FROM
 				item i2
 			WHERE
-				i2.external_id = item.external_id
+				i2.part_number = item.part_number
 			LIMIT 1)
 	RETURNING
-		item.external_id)
+		item.part_number)
 DELETE FROM item
-WHERE external_id IN (
+WHERE part_number IN (
 		SELECT
-			external_id
+			part_number
 		FROM
 			updated)
 	AND id NOT IN (
@@ -46,6 +46,6 @@ WHERE external_id IN (
 		FROM
 			item i2
 		WHERE
-			i2.external_id = item.external_id
+			i2.part_number = item.part_number
 		LIMIT 1);
 COMMIT;
