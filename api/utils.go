@@ -19,8 +19,8 @@ func validateItem(item *Item) error {
 		return fmt.Errorf("ID is required")
 	}
 
-	if item.ExternalID == "" {
-		return fmt.Errorf("external ID is required")
+	if item.PartNumber == "" {
+		return fmt.Errorf("part number is required")
 	}
 
 	if item.Price == nil {

@@ -21,7 +21,15 @@ func fetchDbItems() ([]Item, error) {
 			quantity sql.NullInt64
 		)
 
-		if err := rows.Scan(&item.ID, &item.ExternalID, &item.Description, &price, &quantity); err != nil {
+		if err := rows.Scan(
+			&item.ID,
+			&item.PartNumber,
+			&item.SerialNumber,
+			&item.Category,
+			&item.Description,
+			&price,
+			&quantity,
+			&item.PurchaseOrder); err != nil {
 			return nil, fmt.Errorf("allItems: %v", err)
 		}
 
@@ -49,7 +57,17 @@ func fetchDbItem(itemId string) (Item, error) {
 	var price sql.NullFloat64
 	var quantity sql.NullInt64
 
-	err := db.QueryRow("SELECT * FROM item WHERE external_id = $1", itemId).Scan(&item.ID, &item.ExternalID, &item.Description, &price, &quantity)
+	err := db.
+		QueryRow("SELECT * FROM item WHERE part_number = $1", itemId).
+		Scan(
+			&item.ID,
+			&item.PartNumber,
+			&item.SerialNumber,
+			&item.Category,
+			&item.Description,
+			&price,
+			&quantity,
+			&item.PurchaseOrder)
 	if err != nil {
 		return Item{}, err
 	}
@@ -86,14 +104,23 @@ func updateDbItem(item *Item) error {
 }
 
 func createDbItem(item Item) (Item, error) {
-	stmt, err := db.Prepare("INSERT INTO item (external_id, description, price, quantity) VALUES ($1, $2, $3, $4) RETURNING id")
+	stmt, err := db.Prepare("INSERT INTO item (part_number, serial_number, categroy, description, price, quantity, purchase_order) VALUES ($1, $2, $3, $4, $6, $7) RETURNING id")
 	if err != nil {
 		return Item{}, fmt.Errorf("createDbItem: %v", err)
 	}
 	defer stmt.Close()
 
 	var id string
-	err = stmt.QueryRow(item.ExternalID, item.Description, item.Price, item.Quantity).Scan(&id)
+	err = stmt.
+		QueryRow(
+			item.PartNumber,
+			item.SerialNumber,
+			item.Category,
+			item.Description,
+			item.Price,
+			item.Quantity,
+			item.PurchaseOrder).
+		Scan(&id)
 	if err != nil {
 		return Item{}, fmt.Errorf("createDbItem: %v", err)
 	}
