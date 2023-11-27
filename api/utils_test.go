@@ -23,3 +23,31 @@ func Test_errorHandlingExtractPathParam(t *testing.T) {
 		t.Error("incorrect result: expected parameter is required, got,", err)
 	}
 }
+
+func TestValidateItem(t *testing.T) {
+	var (
+		positivePrice float64 = 100.0
+		negativePrice float64 = -50.0
+		quantity      int     = 10
+	)
+
+	testCases := []struct {
+		name    string
+		item    Item
+		wantErr bool
+	}{
+		{"Valid Item", Item{ID: "1", PartNumber: "PN1", Price: &positivePrice, Quantity: &quantity}, false},
+		{"Missing ID", Item{PartNumber: "PN1", Price: &positivePrice, Quantity: &quantity}, true},
+		{"Negative Price", Item{ID: "1", PartNumber: "PN1", Price: &negativePrice, Quantity: &quantity}, true},
+		{"Missing Quantity", Item{ID: "1", PartNumber: "PN1", Price: &positivePrice}, true},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			err := validateItem(&tc.item)
+			if (err != nil) != tc.wantErr {
+				t.Errorf("validateItem() error = %v, wantErr %v", err, tc.wantErr)
+			}
+		})
+	}
+}
