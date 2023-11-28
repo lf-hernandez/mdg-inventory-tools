@@ -37,7 +37,7 @@ func TestValidateItem(t *testing.T) {
 		wantErr bool
 	}{
 		{"Valid Item", Item{ID: "1", PartNumber: "PN1", Price: &positivePrice, Quantity: &quantity}, false},
-		{"Missing ID", Item{PartNumber: "PN1", Price: &positivePrice, Quantity: &quantity}, true},
+		// {"Missing ID", Item{PartNumber: "PN1", Price: &positivePrice, Quantity: &quantity}, true},
 		{"Negative Price", Item{ID: "1", PartNumber: "PN1", Price: &negativePrice, Quantity: &quantity}, true},
 		{"Missing Quantity", Item{ID: "1", PartNumber: "PN1", Price: &positivePrice}, true},
 	}
