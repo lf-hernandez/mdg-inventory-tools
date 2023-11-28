@@ -2,14 +2,14 @@ package main
 
 type Item struct {
 	ID            string   `json:"id"`
-	PartNumber    string   `json:"part_number"`
-	SerialNumber  string   `json:"serial_number"`
-	PurchaseOrder string   `json:"purchase_order"`
+	PartNumber    string   `json:"partNumber"`
+	SerialNumber  string   `json:"serialNumber"`
+	PurchaseOrder string   `json:"purchaseOrder"`
 	Description   string   `json:"description"`
 	Category      string   `json:"category"`
 	Price         *float64 `json:"price"`
 	Quantity      *int     `json:"quantity"`
-	InventoryID   string   `json:"inventory_id"`
+	InventoryID   string   `json:"inventoryId"`
 }
 
 type Inventory struct {

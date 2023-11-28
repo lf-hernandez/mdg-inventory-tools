@@ -5,18 +5,21 @@ import (
 	"fmt"
 )
 
-func fetchDbItems() ([]Item, error) {
+func fetchDbItems(page int, limit int) ([]Item, error) {
 	var items []Item
-	rows, err := db.Query("SELECT * FROM item LIMIT 10")
+
+	offset := (page - 1) * limit
+	query := `SELECT * FROM item ORDER BY id LIMIT $1 OFFSET $2`
+	rows, err := db.Query(query, limit, offset)
 	if err != nil {
 		return nil, fmt.Errorf("error executing query: %w", err)
 	}
-
 	defer rows.Close()
 
 	for rows.Next() {
 		var (
 			item          Item
+			description   sql.NullString
 			price         sql.NullFloat64
 			quantity      sql.NullInt64
 			serialNumber  sql.NullString
@@ -28,14 +31,89 @@ func fetchDbItems() ([]Item, error) {
 		if err := rows.Scan(
 			&item.ID,
 			&item.PartNumber,
-			&serialNumber,
-			&category,
-			&item.Description,
+			&description,
 			&price,
 			&quantity,
+			&serialNumber,
 			&purchaseOrder,
+			&category,
 			&inventoryID); err != nil {
 			return nil, fmt.Errorf("error scanning row: %w", err)
+		}
+
+		if description.Valid {
+			item.Description = description.String
+		}
+
+		if serialNumber.Valid {
+			item.SerialNumber = serialNumber.String
+		}
+		if purchaseOrder.Valid {
+			item.PurchaseOrder = purchaseOrder.String
+		}
+		if category.Valid {
+			item.Category = category.String
+		}
+		if inventoryID.Valid {
+			item.InventoryID = inventoryID.String
+		}
+		if price.Valid {
+			item.Price = &price.Float64
+		}
+		if quantity.Valid {
+			qty := int(quantity.Int64)
+			item.Quantity = &qty
+		}
+
+		items = append(items, item)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("error in fetch and iteration over rows: %w", err)
+	}
+
+	return items, nil
+}
+
+func fetchDbItemsWithSearch(searchQuery string) ([]Item, error) {
+	var items []Item
+
+	likeQuery := "%" + searchQuery + "%"
+
+	query := `SELECT * FROM item WHERE part_number = $1 OR serial_number = $1 OR description LIKE $2`
+	rows, err := db.Query(query, searchQuery, likeQuery)
+	if err != nil {
+		return nil, fmt.Errorf("error executing query: %w", err)
+	}
+
+	defer rows.Close()
+	for rows.Next() {
+		var (
+			item          Item
+			description   sql.NullString
+			price         sql.NullFloat64
+			quantity      sql.NullInt64
+			serialNumber  sql.NullString
+			purchaseOrder sql.NullString
+			category      sql.NullString
+			inventoryID   sql.NullString
+		)
+
+		if err := rows.Scan(
+			&item.ID,
+			&item.PartNumber,
+			&description,
+			&price,
+			&quantity,
+			&serialNumber,
+			&purchaseOrder,
+			&category,
+			&inventoryID); err != nil {
+			return nil, fmt.Errorf("error scanning row: %w", err)
+		}
+
+		if description.Valid {
+			item.Description = description.String
 		}
 
 		if serialNumber.Valid {
@@ -83,12 +161,12 @@ func fetchDbItem(partNumber string) (Item, error) {
 		Scan(
 			&item.ID,
 			&item.PartNumber,
-			&serialNumber,
-			&category,
 			&item.Description,
 			&price,
 			&quantity,
+			&serialNumber,
 			&purchaseOrder,
+			&category,
 			&inventoryID)
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -144,7 +222,25 @@ func createDbItem(item Item) (Item, error) {
 		return Item{}, fmt.Errorf("validation failed: %w", err)
 	}
 
-	stmt, err := db.Prepare("INSERT INTO item (part_number, serial_number, category, description, price, quantity, purchase_order, inventory_id) VALUES ($1, $2, $3, $4, $6, $7) RETURNING id")
+	var inventoryID sql.NullString
+	if item.InventoryID != "" {
+		inventoryID = sql.NullString{String: item.InventoryID, Valid: true}
+	}
+
+	stmt, err := db.Prepare(`
+		INSERT INTO item (
+			part_number, 
+			description, 
+			price, 
+			quantity, 
+			serial_number, 
+			purchase_order, 
+			category, 
+			inventory_id
+		) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) 
+		RETURNING id
+	`)
+
 	if err != nil {
 		return Item{}, fmt.Errorf("error preparing statement: %w", err)
 	}
@@ -154,12 +250,13 @@ func createDbItem(item Item) (Item, error) {
 	err = stmt.
 		QueryRow(
 			item.PartNumber,
-			item.SerialNumber,
-			item.Category,
 			item.Description,
 			item.Price,
 			item.Quantity,
-			item.PurchaseOrder).
+			item.SerialNumber,
+			item.PurchaseOrder,
+			item.Category,
+			inventoryID).
 		Scan(&id)
 	if err != nil {
 		return Item{}, fmt.Errorf("error executing SQL statement: %w", err)

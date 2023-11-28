@@ -15,16 +15,12 @@ func extractPathParam(path string, routePrefix string) (string, error) {
 }
 
 func validateItem(item *Item) error {
-	if item.ID == "" {
-		return fmt.Errorf("ID is required")
-	}
-
 	if item.PartNumber == "" {
 		return fmt.Errorf("part number is required")
 	}
 
 	if item.Price == nil {
-		return fmt.Errorf("price is requried")
+		return fmt.Errorf("price is required")
 	}
 
 	if item.Price != nil && *item.Price < 0 {

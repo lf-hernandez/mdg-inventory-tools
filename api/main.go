@@ -12,7 +12,7 @@ import (
 var db *sql.DB
 
 func main() {
-	fmt.Println("Connecting to database...")
+	fmt.Println("Connecting to database.")
 
 	dsn := "postgresql://postgres:postgres@localhost:5432/mdg?sslmode=disable"
 	var err error
@@ -28,13 +28,16 @@ func main() {
 		log.Fatalf("Error connecting to database: %v\n", err)
 	}
 
-	fmt.Println("Connection to dabase succesfully established!")
+	fmt.Println("Connection to database successfully established!")
+
+	fs := http.FileServer(http.Dir("./static"))
+	http.Handle("/static/", http.StripPrefix("/static/", fs))
 
 	fmt.Println("Starting server on port 8000")
 
 	http.HandleFunc("/", routeRoot)
-	http.HandleFunc("/api/items/", routeItems)
-	http.HandleFunc("/api/item/", routeItem)
+	http.HandleFunc("/api/items", routeItems)
+	http.HandleFunc("/api/items/", routeSpecificItem)
 
 	log.Fatal(http.ListenAndServe(":8000", nil))
 }

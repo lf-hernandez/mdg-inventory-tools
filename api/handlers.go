@@ -5,12 +5,42 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strconv"
 )
 
 func handleGetItems(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	items, err := fetchDbItems()
+	searchQuery := r.URL.Query().Get("search")
+	if searchQuery != "" {
+		items, err := fetchDbItemsWithSearch(searchQuery)
+		if err != nil {
+			http.Error(w, fmt.Sprintf("Error fetching items: %v", err), http.StatusInternalServerError)
+			return
+		}
+
+		err = json.NewEncoder(w).Encode(items)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
+		return // End the function here if searchQuery is present
+	}
+
+	// Continue with paginated fetching if no search query
+	page, limit := 1, 10
+
+	if p := r.URL.Query().Get("page"); p != "" {
+		if parsedPage, err := strconv.Atoi(p); err == nil {
+			page = parsedPage
+		}
+	}
+	if l := r.URL.Query().Get("limit"); l != "" {
+		if parsedLimit, err := strconv.Atoi(l); err == nil {
+			limit = parsedLimit
+		}
+	}
+
+	items, err := fetchDbItems(page, limit)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -19,14 +49,13 @@ func handleGetItems(w http.ResponseWriter, r *http.Request) {
 	err = json.NewEncoder(w).Encode(items)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
 	}
 }
 
 func handleGetItem(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	itemId, err := extractPathParam(r.URL.Path, "/api/item/")
+	itemId, err := extractPathParam(r.URL.Path, "/api/items/")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -53,7 +82,7 @@ func handleGetItem(w http.ResponseWriter, r *http.Request) {
 func handleUpdateItem(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	itemId, err := extractPathParam(r.URL.Path, "/api/item")
+	itemId, err := extractPathParam(r.URL.Path, "/api/items")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
