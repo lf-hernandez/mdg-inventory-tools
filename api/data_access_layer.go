@@ -80,7 +80,7 @@ func fetchDbItemsWithSearch(searchQuery string) ([]Item, error) {
 
 	likeQuery := "%" + searchQuery + "%"
 
-	query := `SELECT * FROM item WHERE part_number = $1 OR serial_number = $1 OR description LIKE $2`
+	query := `SELECT * FROM item WHERE part_number = $1 OR serial_number = $1 OR description ILIKE $2`
 	rows, err := db.Query(query, searchQuery, likeQuery)
 	if err != nil {
 		return nil, fmt.Errorf("error executing query: %w", err)
