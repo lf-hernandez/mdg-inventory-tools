@@ -5,10 +5,13 @@ import { ItemCard } from "./ItemCard";
 
 export const SearchForm = () => {
   const [query, setQuery] = useState("");
-  const [searchResults, setSearchResults] = useState<Array<Item>>([]);
+  const [searchResults, setSearchResults] = useState<Array<Item> | null>(null);
+  const [isSearched, setIsSearched] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (!query.trim()) return;
+    setIsSearched(true);
     try {
       const items = await ItemService.searchItems(query);
       setSearchResults(items);
@@ -19,7 +22,8 @@ export const SearchForm = () => {
 
   const handleClear = () => {
     setQuery("");
-    setSearchResults([]);
+    setSearchResults(null);
+    setIsSearched(false);
   };
 
   return (
@@ -51,9 +55,13 @@ export const SearchForm = () => {
         </div>
       </form>
       <div>
-        {searchResults.map((item) => (
-          <ItemCard key={item.id} item={item} />
-        ))}
+        {isSearched &&
+          (searchResults === null || searchResults.length === 0) && (
+            <p className="text-center text-gray-600">
+              No results found. Try different keywords or check for typos.
+            </p>
+          )}
+        {searchResults?.map((item) => <ItemCard key={item.id} item={item} />)}
       </div>
     </section>
   );
