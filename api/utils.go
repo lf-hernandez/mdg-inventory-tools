@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"strings"
 )
 
@@ -32,4 +33,14 @@ func validateItem(item *Item) error {
 	}
 
 	return nil
+}
+
+func logError(err error) {
+	if err != nil {
+		log.Printf("[ERROR] %v", err)
+	}
+}
+
+func logInfo(message string) {
+	log.Printf("[INFO] %s", message)
 }

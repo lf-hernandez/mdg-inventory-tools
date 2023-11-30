@@ -229,15 +229,15 @@ func createDbItem(item Item) (Item, error) {
 
 	stmt, err := db.Prepare(`
 		INSERT INTO item (
-			part_number, 
-			description, 
-			price, 
-			quantity, 
-			serial_number, 
-			purchase_order, 
-			category, 
+			part_number,
+			description,
+			price,
+			quantity,
+			serial_number,
+			purchase_order,
+			category,
 			inventory_id
-		) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) 
+		) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
 		RETURNING id
 	`)
 
@@ -264,4 +264,48 @@ func createDbItem(item Item) (Item, error) {
 
 	item.ID = id
 	return item, nil
+}
+
+func createUser(user User) (User, error) {
+	stmt, err := db.Prepare(`
+	INSERT INTO app_user (
+		name,
+		email,
+		password
+	) VALUES ($1, $2, $3)
+	RETURNING id
+	`)
+
+	if err != nil {
+		return User{}, fmt.Errorf("error preparing statement: %w", err)
+	}
+
+	defer stmt.Close()
+
+	var id string
+
+	err = stmt.QueryRow(user.Name, user.Email, user.Password).Scan(&id)
+	if err != nil {
+		return User{}, fmt.Errorf("error executing SQL statement: %w", err)
+	}
+
+	user.ID = id
+	return user, nil
+}
+
+func fetchUserByEmail(email string) (User, error) {
+	var user User
+
+	err := db.QueryRow(
+		"SELECT id, name, email, password FROM app_user WHERE email = $1",
+		email,
+	).Scan(&user.ID, &user.Name, &user.Email, &user.Password)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return User{}, fmt.Errorf("no user found with email %s: %w", email, err)
+		}
+		return User{}, fmt.Errorf("error executing query: %w", err)
+	}
+
+	return user, nil
 }

@@ -3,9 +3,12 @@ package main
 import (
 	"database/sql"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"strconv"
+
+	"golang.org/x/crypto/bcrypt"
 )
 
 func handleGetItems(w http.ResponseWriter, r *http.Request) {
@@ -15,6 +18,7 @@ func handleGetItems(w http.ResponseWriter, r *http.Request) {
 	if searchQuery != "" {
 		items, err := fetchDbItemsWithSearch(searchQuery)
 		if err != nil {
+			logError(fmt.Errorf("error fetching items with search query '%s': %w", searchQuery, err))
 			http.Error(w, fmt.Sprintf("Error fetching items: %v", err), http.StatusInternalServerError)
 			return
 		}
@@ -23,10 +27,9 @@ func handleGetItems(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		}
-		return // End the function here if searchQuery is present
+		return
 	}
 
-	// Continue with paginated fetching if no search query
 	page, limit := 1, 10
 
 	if p := r.URL.Query().Get("page"); p != "" {
@@ -57,6 +60,7 @@ func handleGetItem(w http.ResponseWriter, r *http.Request) {
 
 	itemId, err := extractPathParam(r.URL.Path, "/api/items/")
 	if err != nil {
+		logError(fmt.Errorf("error fetching item with ID '%s': %w", itemId, err))
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
@@ -84,6 +88,7 @@ func handleUpdateItem(w http.ResponseWriter, r *http.Request) {
 
 	itemId, err := extractPathParam(r.URL.Path, "/api/items/")
 	if err != nil {
+		logError(fmt.Errorf("error updating item with ID '%s': %w", itemId, err))
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
@@ -121,6 +126,7 @@ func handleCreateItem(w http.ResponseWriter, r *http.Request) {
 	var newItem Item
 	err := json.NewDecoder(r.Body).Decode(&newItem)
 	if err != nil {
+		logError(fmt.Errorf("error creating new item: %w", err))
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
@@ -138,4 +144,78 @@ func handleCreateItem(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(createdItem)
+}
+
+func handleSignup(w http.ResponseWriter, r *http.Request) {
+	var newUser User
+	err := json.NewDecoder(r.Body).Decode(&newUser)
+	if err != nil {
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(newUser.Password), bcrypt.DefaultCost)
+	if err != nil {
+		logError(err)
+		http.Error(w, "Error creating user", http.StatusInternalServerError)
+		return
+	}
+	newUser.Password = string(hashedPassword)
+
+	createdUser, err := createUser(newUser)
+	if err != nil {
+		logError(err)
+		http.Error(w, "Error creating user", http.StatusInternalServerError)
+		return
+	}
+
+	userResponse := UserResponse{
+		ID:    createdUser.ID,
+		Name:  createdUser.Name,
+		Email: createdUser.Email,
+	}
+
+	w.WriteHeader(http.StatusCreated)
+	json.NewEncoder(w).Encode(userResponse)
+}
+
+func handleLogin(w http.ResponseWriter, r *http.Request) {
+	var loginUser User
+	err := json.NewDecoder(r.Body).Decode(&loginUser)
+	if err != nil {
+		logError(fmt.Errorf("login error: invalid request body: %w", err))
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	logInfo(fmt.Sprintf("Attempting login for email: %s", loginUser.Email))
+
+	user, err := fetchUserByEmail(loginUser.Email)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			logError(fmt.Errorf("login error: no user found with email %s: %w", loginUser.Email, err))
+			http.Error(w, "Invalid credentials", http.StatusUnauthorized)
+		} else {
+			logError(fmt.Errorf("login error: error fetching user by email: %w", err))
+			http.Error(w, "Error logging in", http.StatusInternalServerError)
+		}
+		return
+	}
+
+	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(loginUser.Password))
+	if err != nil {
+		logError(fmt.Errorf("login error: password mismatch for email %s: %w", loginUser.Email, err))
+		http.Error(w, "Invalid credentials", http.StatusUnauthorized)
+		return
+	}
+
+	tokenString, err := createToken(user.ID)
+	if err != nil {
+		logError(fmt.Errorf("login error: error creating token for user ID %s: %w", user.ID, err))
+		http.Error(w, "Error logging in", http.StatusInternalServerError)
+		return
+	}
+
+	logInfo(fmt.Sprintf("User logged in: %s", user.Email))
+	w.Write([]byte(tokenString))
 }

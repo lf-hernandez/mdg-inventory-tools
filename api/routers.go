@@ -5,10 +5,6 @@ import (
 	"strings"
 )
 
-func routeRoot(w http.ResponseWriter, r *http.Request) {
-	http.ServeFile(w, r, "./static/index.html")
-}
-
 func routeItems(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:

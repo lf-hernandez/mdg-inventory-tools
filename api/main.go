@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 
+	_ "github.com/joho/godotenv/autoload"
 	_ "github.com/lib/pq"
 )
 
@@ -32,9 +33,10 @@ func main() {
 
 	fmt.Println("Starting server on port 8000")
 
-	http.HandleFunc("/", routeRoot)
-	http.HandleFunc("/api/items", routeItems)
-	http.HandleFunc("/api/items/", routeSpecificItem)
+	http.HandleFunc("/api/login", handleLogin)
+	http.HandleFunc("/api/signup", handleSignup)
+	http.Handle("/api/items", JwtMiddleware(http.HandlerFunc(routeItems)))
+	http.Handle("/api/items/", JwtMiddleware(http.HandlerFunc(routeSpecificItem)))
 
 	log.Fatal(http.ListenAndServe(":8000", nil))
 }
