@@ -30,9 +30,6 @@ func main() {
 
 	fmt.Println("Connection to database successfully established!")
 
-	fs := http.FileServer(http.Dir("./static"))
-	http.Handle("/static/", http.StripPrefix("/static/", fs))
-
 	fmt.Println("Starting server on port 8000")
 
 	http.HandleFunc("/", routeRoot)
