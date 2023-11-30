@@ -21,7 +21,7 @@ export const ItemService = {
       body: JSON.stringify(item),
     });
   },
-  async updateItem(id: number, item: Partial<Item>): Promise<Item> {
+  async updateItem(id: string, item: Partial<Item>): Promise<Item> {
     return fetchJson(`${BASE_URL}/${id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },

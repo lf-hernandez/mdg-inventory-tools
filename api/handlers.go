@@ -82,7 +82,7 @@ func handleGetItem(w http.ResponseWriter, r *http.Request) {
 func handleUpdateItem(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	itemId, err := extractPathParam(r.URL.Path, "/api/items")
+	itemId, err := extractPathParam(r.URL.Path, "/api/items/")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return

@@ -10,8 +10,8 @@ export const SearchForm = () => {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!query.trim()) return;
     setIsSearched(true);
+    if (!query.trim()) return;
     try {
       const items = await ItemService.searchItems(query);
       setSearchResults(items);
@@ -24,6 +24,16 @@ export const SearchForm = () => {
     setQuery("");
     setSearchResults(null);
     setIsSearched(false);
+  };
+
+  // Update the local state of search results when an item is updated
+  const handleItemUpdate = (updatedItem: Item) => {
+    setSearchResults(
+      (currentResults) =>
+        currentResults?.map((item) =>
+          item.id === updatedItem.id ? updatedItem : item,
+        ) || null,
+    );
   };
 
   return (
@@ -61,7 +71,9 @@ export const SearchForm = () => {
               No results found. Try different keywords or check for typos.
             </p>
           )}
-        {searchResults?.map((item) => <ItemCard key={item.id} item={item} />)}
+        {searchResults?.map((item) => (
+          <ItemCard key={item.id} item={item} onUpdate={handleItemUpdate} />
+        ))}
       </div>
     </section>
   );

@@ -18,8 +18,25 @@ export const ItemList = () => {
     setCurrentPage(currentPage + 1);
   };
 
+  const handleItemUpdate = (updatedItem: Item) => {
+    setItems((currentItems) =>
+      currentItems.map((item) =>
+        item.id === updatedItem.id ? updatedItem : item,
+      ),
+    );
+  };
+
   useEffect(() => {
-    ItemService.getItems(currentPage).then(setItems).catch(console.error);
+    const fetchItems = async () => {
+      try {
+        const fetchedItems = await ItemService.getItems(currentPage);
+        setItems(fetchedItems);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    fetchItems();
   }, [currentPage]);
 
   return (
@@ -27,7 +44,7 @@ export const ItemList = () => {
       <h2 className="text-2xl font-bold my-4">Items List</h2>
       <div id="itemsList">
         {items.map((item) => (
-          <ItemCard key={item.id} item={item} />
+          <ItemCard key={item.id} item={item} onUpdate={handleItemUpdate} />
         ))}
       </div>
       <PaginationControls
