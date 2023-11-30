@@ -74,15 +74,15 @@ export const ItemCard = ({ item, onUpdate }: Props) => {
             />
             <InputField
               label="Price"
-              type="text"
               name="price"
+              type="number"
               value={editItem.price}
               onChange={handleEditChange}
             />
             <InputField
               label="Quantity"
-              type="text"
               name="quantity"
+              type="number"
               value={editItem.quantity}
               onChange={handleEditChange}
             />
