@@ -18,7 +18,10 @@ export const InputField = ({
   required = false,
 }: Props) => (
   <div>
-    <label htmlFor={name} className="block text-sm font-medium text-gray-700">
+    <label
+      htmlFor={name}
+      className="block text-sm font-medium text-gray-700 mb-1"
+    >
       {label}
     </label>
     <input
@@ -28,7 +31,7 @@ export const InputField = ({
       value={value}
       onChange={onChange}
       required={required}
-      className="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300"
+      className="focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border border-gray-300 rounded-md py-2 px-3 text-base leading-tight"
     />
   </div>
 );

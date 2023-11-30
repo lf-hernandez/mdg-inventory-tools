@@ -131,10 +131,12 @@ export const AddItemForm = () => {
           />
         </div>
         <div className="flex justify-between items-center mt-4">
-          {error && <p className="text-red-500 text-sm">{error}</p>}
+          <p className={`text-red-500 text-sm ${error ? "block" : "hidden"}`}>
+            {error}
+          </p>
           <button
             type="submit"
-            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+            className="ml-auto bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
           >
             Add Item
           </button>
