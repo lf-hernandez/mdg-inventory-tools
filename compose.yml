@@ -5,9 +5,9 @@ services:
       - postgres_data:/var/lib/postgresql/data
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
     environment:
-      POSTGRES_DB: ${POSTGRES_DB}
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      - POSTGRES_DB
+      - POSTGRES_USER
+      - POSTGRES_PASSWORD
     ports:
       - "5432:5432"
 
@@ -20,8 +20,8 @@ services:
     depends_on:
       - postgres
     environment:
-      POSTGRES_DSN: ${POSTGRES_DSN}
-      JWT_SECRET: ${JWT_SECRET}
+      - POSTGRES_DSN
+      - JWT_SECRET
 
   frontend:
     build:
@@ -32,8 +32,8 @@ services:
     depends_on:
       - backend
     environment:
-      PORT: ${PORT}
-      FRONTEND_ORIGIN: ${FRONTEND_ORIGIN}
+      - PORT
+      - FRONTEND_ORIGIN
 
 volumes:
   postgres_data:
