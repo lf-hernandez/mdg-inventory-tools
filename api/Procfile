@@ -1,1 +1,1 @@
-web: ./mdg-inventory-api
+web: ./bin/mdg-inventory-api
