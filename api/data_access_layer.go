@@ -9,7 +9,20 @@ func fetchDbItems(page int, limit int) ([]Item, error) {
 	var items []Item
 
 	offset := (page - 1) * limit
-	query := `SELECT * FROM item ORDER BY id LIMIT $1 OFFSET $2`
+	query := `
+		SELECT
+			id,
+			part_number,
+			description,
+			price,
+			quantity,
+			serial_number,
+			purchase_order,
+			category,
+			inventory_id
+		FROM item
+		ORDER BY id
+		LIMIT $1 OFFSET $2`
 	rows, err := db.Query(query, limit, offset)
 	if err != nil {
 		return nil, fmt.Errorf("error executing query: %w", err)
