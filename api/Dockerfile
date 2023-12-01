@@ -2,9 +2,9 @@
 FROM golang:1.21-alpine as build
 
 WORKDIR /app
-COPY api/go.mod api/go.sum ./
+COPY go.mod go.sum ./
 RUN go mod download
-COPY api/ .
+COPY . .
 RUN go build -o main .
 
 # Stage 2: Run
