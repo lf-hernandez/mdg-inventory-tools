@@ -40,7 +40,3 @@ npm run dev
 ```
 
 This command will launch the client, allowing for inventory management through a web interface.
-
-### TODO
-
-User Authentication + Sign Up and Log In flows
