@@ -175,8 +175,23 @@ func handleSignup(w http.ResponseWriter, r *http.Request) {
 		Email: createdUser.Email,
 	}
 
+	tokenString, err := createToken(createdUser.ID)
+	if err != nil {
+		logError(fmt.Errorf("signup error: error creating token for user ID %s: %w", createdUser.ID, err))
+		http.Error(w, "Error creating user token", http.StatusInternalServerError)
+		return
+	}
+
+	signupResponse := struct {
+		Token string       `json:"token"`
+		User  UserResponse `json:"user"`
+	}{
+		Token: tokenString,
+		User:  userResponse,
+	}
+
 	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(userResponse)
+	json.NewEncoder(w).Encode(signupResponse)
 }
 
 func handleLogin(w http.ResponseWriter, r *http.Request) {
@@ -216,6 +231,20 @@ func handleLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	type tokenResponse struct {
+		Token string `json:"token"`
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+
+	response := tokenResponse{Token: tokenString}
+
+	err = json.NewEncoder(w).Encode(response)
+	if err != nil {
+		logError(fmt.Errorf("login error: error encoding token response: %w", err))
+		http.Error(w, "Error logging in", http.StatusInternalServerError)
+		return
+	}
+
 	logInfo(fmt.Sprintf("User logged in: %s", user.Email))
-	w.Write([]byte(tokenString))
 }
