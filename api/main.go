@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/rs/cors"
 
@@ -22,17 +23,25 @@ func main() {
 	var err error
 	db, err = sql.Open("postgres", dsn)
 	if err != nil {
-		log.Fatal("Error opening connection to database", err)
+		log.Fatalf("Error opening connection to database: %v\nDSN: %s", err, dsn)
 	}
 
 	defer db.Close()
 
-	err = db.Ping()
-	if err != nil {
-		log.Fatalf("Error connecting to database: %v\n", err)
+	for i := 0; i < 5; i++ {
+		err = db.Ping()
+		if err == nil {
+			fmt.Println("Connection to database successfully established!")
+			break
+		}
+
+		fmt.Printf("Attempt %d: Error connecting to database: %v\n", i+1, err)
+		time.Sleep(5 * time.Second) // Wait for 5 seconds before retrying
 	}
 
-	fmt.Println("Connection to database successfully established!")
+	if err != nil {
+		log.Fatalf("After several attempts, failed to connect to database: %v\n", err)
+	}
 
 	port := os.Getenv("PORT")
 	if port == "" {
