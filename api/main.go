@@ -7,6 +7,8 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/rs/cors"
+
 	_ "github.com/joho/godotenv/autoload"
 	_ "github.com/lib/pq"
 )
@@ -40,10 +42,19 @@ func main() {
 
 	fmt.Printf("Starting server on port %v", port)
 
-	http.HandleFunc("/api/login", handleLogin)
-	http.HandleFunc("/api/signup", handleSignup)
-	http.Handle("/api/items", JwtMiddleware(http.HandlerFunc(routeItems)))
-	http.Handle("/api/items/", JwtMiddleware(http.HandlerFunc(routeSpecificItem)))
+	c := cors.New(cors.Options{
+		AllowedOrigins:   []string{os.Getenv("FRONTEND_ORIGIN")},
+		AllowCredentials: true,
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedHeaders:   []string{"*"},
+	})
 
-	log.Fatal(http.ListenAndServe(":"+port, nil))
+	mux := http.NewServeMux()
+
+	mux.Handle("/api/login", c.Handler(http.HandlerFunc(handleLogin)))
+	mux.Handle("/api/signup", c.Handler(http.HandlerFunc(handleSignup)))
+	mux.Handle("/api/items", c.Handler(JwtMiddleware(http.HandlerFunc(routeItems))))
+	mux.Handle("/api/items/", c.Handler(JwtMiddleware(http.HandlerFunc(routeSpecificItem))))
+
+	log.Fatal(http.ListenAndServe(":"+port, c.Handler(mux)))
 }
