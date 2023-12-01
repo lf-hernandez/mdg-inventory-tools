@@ -1,1 +1,1 @@
-web: ./heroku-start.sh
+web: ./mdg-inventory-api
