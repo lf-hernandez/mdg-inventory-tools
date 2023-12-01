@@ -8,8 +8,8 @@ export const SearchForm = () => {
   const [searchResults, setSearchResults] = useState<Array<Item> | null>(null);
   const [isSearched, setIsSearched] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
     setIsSearched(true);
     if (!query.trim()) return;
     try {
@@ -26,7 +26,6 @@ export const SearchForm = () => {
     setIsSearched(false);
   };
 
-  // Update the local state of search results when an item is updated
   const handleItemUpdate = (updatedItem: Item) => {
     setSearchResults(
       (currentResults) =>
