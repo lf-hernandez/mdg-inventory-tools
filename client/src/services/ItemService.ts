@@ -1,7 +1,7 @@
 import type { Item } from "../types";
 import { fetchJson } from "../utils/http";
 
-const BASE_URL = "/api/items";
+const BASE_URL = `${import.meta.env.VITE_API_URL}/api/items`;
 const LIMIT = 10;
 
 export const ItemService = {

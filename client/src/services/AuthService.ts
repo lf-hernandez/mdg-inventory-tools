@@ -1,6 +1,6 @@
 import { fetchJson } from "../utils/http";
 
-const BASE_URL = "/api";
+const BASE_URL = `${import.meta.env.VITE_API_URL}/api`;
 
 export const AuthService = {
   async login(email: string, password: string): Promise<string> {
