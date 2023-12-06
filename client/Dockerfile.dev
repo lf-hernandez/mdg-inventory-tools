@@ -1,0 +1,10 @@
+# Stage 1: Build
+FROM node:16
+
+WORKDIR /app
+COPY package*.json yarn*.lock ./
+RUN npm install
+COPY . .
+
+EXPOSE 80
+CMD ["npm", "start"]
