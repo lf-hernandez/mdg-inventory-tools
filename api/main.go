@@ -43,8 +43,10 @@ func main() {
 		log.Fatalf("After several attempts, failed to connect to database: %v\n", err)
 	}
 
+    logInfo("Attempting to bind to port")
 	port := os.Getenv("PORT")
-	if port == "" {
+    logInfo(port)
+    if port == "" {
 		logInfo("PORT not set, defaulting to 8000")
 		port = "8000"
 	}
