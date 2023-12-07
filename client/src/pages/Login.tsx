@@ -45,6 +45,7 @@ const LoginComponent = () => {
           <button
             type="submit"
             className="w-full p-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+            disabled={!email || !password}
           >
             Login
           </button>
