@@ -19,7 +19,7 @@ var db *sql.DB
 func main() {
 	fmt.Println("Connecting to database.")
 
-	dsn := os.Getenv("POSTGRES_DSN")
+	dsn := os.Getenv("DATABASE_URL")
 	var err error
 	db, err = sql.Open("postgres", dsn)
 	if err != nil {
