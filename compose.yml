@@ -20,7 +20,7 @@ services:
     depends_on:
       - postgres
     environment:
-      - POSTGRES_DSN
+      - DATABASE_URL
       - JWT_SECRET
 
   frontend:
