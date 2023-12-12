@@ -20,6 +20,7 @@ func main() {
 	fmt.Println("Connecting to database.")
 
 	dsn := os.Getenv("DATABASE_URL")
+	fmt.Println("DSN: ", dsn)
 	var err error
 	db, err = sql.Open("postgres", dsn)
 	if err != nil {
@@ -43,10 +44,10 @@ func main() {
 		log.Fatalf("After several attempts, failed to connect to database: %v\n", err)
 	}
 
-    logInfo("Attempting to bind to port")
+	logInfo("Attempting to bind to port")
 	port := os.Getenv("PORT")
-    logInfo(port)
-    if port == "" {
+	logInfo(port)
+	if port == "" {
 		logInfo("PORT not set, defaulting to 8000")
 		port = "8000"
 	}

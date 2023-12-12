@@ -11,7 +11,6 @@ type Item struct {
 	Category          string    `json:"category"`
 	Price             *float64  `json:"price"`
 	Quantity          *int      `json:"quantity"`
-	InventoryID       string    `json:"inventoryId"`
 	Status            string    `json:"status"`
 	RepairOrderNumber string    `json:"repair_order_number"`
 	Condition         string    `json:"condition"`
