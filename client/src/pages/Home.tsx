@@ -1,3 +1,4 @@
+import { toast } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import { AddItemForm } from "../components/AddItemForm";
 import { ItemList } from "../components/ItemList";
@@ -10,6 +11,7 @@ const Home = () => {
 
   const handleLogout = () => {
     logout();
+    toast.error("Logged out successfully.");
     navigate("/login");
   };
 

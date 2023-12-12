@@ -17,6 +17,7 @@ const Signup = () => {
     try {
       const token = await AuthService.signup(name, email, password);
       login(token);
+      toast.error("Signed up in successfully.");
       navigate("/");
     } catch (error) {
       if (error instanceof Error) {

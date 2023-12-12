@@ -16,6 +16,7 @@ const LoginComponent = () => {
     try {
       const token = await AuthService.login(email, password);
       login(token);
+      toast.error("Logged in successfully.");
       navigate("/");
     } catch (error) {
       toast.error("Login failed.");
