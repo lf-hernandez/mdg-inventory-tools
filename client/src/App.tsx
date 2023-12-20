@@ -9,6 +9,7 @@ import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import { ProtectedRoute } from "./router/ProtectedRoute";
 import { PublicRoute } from "./router/PublicRoute";
+import { UserProvider } from "./contexts/UserContext";
 
 const router = createBrowserRouter([
   {
@@ -35,8 +36,10 @@ const router = createBrowserRouter([
 function App() {
   return (
     <AuthProvider>
-      <RouterProvider router={router} />
-      <Toaster />
+      <UserProvider>
+        <RouterProvider router={router} />
+        <Toaster />
+      </UserProvider>
     </AuthProvider>
   );
 }

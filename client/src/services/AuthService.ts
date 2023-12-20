@@ -1,9 +1,13 @@
+import { ApiUser } from "../types";
 import { fetchJson } from "../utils/http";
 
 const BASE_URL = `${import.meta.env.VITE_API_URL}/api`;
 
 export const AuthService = {
-  async login(email: string, password: string): Promise<string> {
+  async login(
+    email: string,
+    password: string,
+  ): Promise<{ token: string; user: ApiUser }> {
     const data = await fetchJson({
       url: `${BASE_URL}/login`,
       options: {
@@ -12,10 +16,14 @@ export const AuthService = {
       },
       includeAuth: false,
     });
-    return data.token;
+    return data;
   },
 
-  async signup(name: string, email: string, password: string): Promise<string> {
+  async signup(
+    name: string,
+    email: string,
+    password: string,
+  ): Promise<{ token: string; user: ApiUser }> {
     const data = await fetchJson({
       url: `${BASE_URL}/signup`,
       options: {
@@ -25,6 +33,6 @@ export const AuthService = {
       includeAuth: false,
     });
 
-    return data.token;
+    return data;
   },
 };

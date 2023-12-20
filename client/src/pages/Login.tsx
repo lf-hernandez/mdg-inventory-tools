@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { toast } from "react-hot-toast";
 import { Link, useNavigate } from "react-router-dom";
+import { UserContext } from "../contexts/UserContext";
 import { useAuth } from "../hooks/useAuth";
 import { AuthService } from "../services/AuthService";
 
@@ -10,12 +11,14 @@ const LoginComponent = () => {
 
   const navigate = useNavigate();
   const { login } = useAuth();
+  const { setUserDetails } = useContext(UserContext);
 
   const handleLogin = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     try {
-      const token = await AuthService.login(email, password);
+      const { token, user } = await AuthService.login(email, password);
       login(token);
+      setUserDetails(user.id, user.name, user.email);
       toast.success("Logged in successfully.");
       navigate("/");
     } catch (error) {

@@ -12,3 +12,9 @@ export type Item = {
   condition: string;
   inventoryID: string;
 };
+
+export type ApiUser = {
+  id: string;
+  name: string;
+  email: string;
+};
