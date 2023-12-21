@@ -31,7 +31,7 @@ const LoginComponent = () => {
     <div className="flex flex-col items-center justify-center">
       <div className="p-6 bg-white shadow-md rounded w-full max-w-md mx-auto">
         <form onSubmit={handleLogin}>
-          <h1 className="text-2xl font-semibold mb-4">Login to Your Account</h1>
+          <h1 className="text-2xl font-semibold mb-4">Login to your account</h1>
           <input
             type="email"
             value={email}

@@ -37,7 +37,7 @@ const Signup = () => {
       <div className="p-6 bg-white shadow-md rounded w-full max-w-md mx-auto">
         <form onSubmit={handleSignup}>
           <h1 className="text-2xl font-semibold mb-4">
-            Sign Up for an Account
+            Sign up for an account
           </h1>
           <input
             type="text"
