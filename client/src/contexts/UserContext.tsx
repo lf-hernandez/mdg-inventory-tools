@@ -9,11 +9,19 @@ type User = {
 type UserContextType = {
   user: User;
   setUserDetails: (id: string, name: string, email: string) => void;
+  clearUserDetails: () => void;
+};
+
+const defaultUser: User = {
+  id: null,
+  name: null,
+  email: null,
 };
 
 const defaultUserContext: UserContextType = {
-  user: { id: null, name: null, email: null },
+  user: defaultUser,
   setUserDetails: () => {},
+  clearUserDetails: () => {},
 };
 
 export const UserContext = createContext<UserContextType>(defaultUserContext);
@@ -36,10 +44,15 @@ export const UserProvider = ({ children }: Props) => {
     setUser({ id, name, email });
   };
 
+  const clearUserDetails = () => {
+    setUser(defaultUser);
+  };
+
   const contextValue = useMemo(
     () => ({
       user,
       setUserDetails,
+      clearUserDetails,
     }),
     [user],
   );
