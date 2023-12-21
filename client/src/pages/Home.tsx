@@ -1,30 +1,28 @@
-import { useContext } from "react";
 import { toast } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import { AddItemForm } from "../components/AddItemForm";
 import { ItemList } from "../components/ItemList";
 import { SearchForm } from "../components/SearchForm";
-import { UserContext } from "../contexts/UserContext";
 import { useAuth } from "../hooks/useAuth";
+import { useCurrentUser } from "../hooks/useCurrentUser";
 
 const Home = () => {
   const navigate = useNavigate();
   const { logout } = useAuth();
-  const { user, clearUserDetails } = useContext(UserContext);
+  const { user } = useCurrentUser();
 
   const handleLogout = () => {
     logout();
-    clearUserDetails();
     toast.success("Logged out successfully.");
     navigate("/login");
   };
 
   return (
     <div className="mx-auto max-w-7xl p-4">
-      <div className="flex flex-row justify-between">
+      <div className={user.name ? "flex justify-between" : "flex justify-end"}>
         {user.name && (
           <div className="flex items-center">
-            <p className="text-lg lg:text-xl">Welcome, {user.name}!</p>
+            <p className="text-lg lg:text-xl">Welcome, {user.name}</p>
           </div>
         )}
         <button

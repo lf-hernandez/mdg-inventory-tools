@@ -1,8 +1,8 @@
-import { useContext, useState } from "react";
+import { useState } from "react";
 import { toast } from "react-hot-toast";
 import { Link, useNavigate } from "react-router-dom";
-import { UserContext } from "../contexts/UserContext";
 import { useAuth } from "../hooks/useAuth";
+import { useCurrentUser } from "../hooks/useCurrentUser";
 import { AuthService } from "../services/AuthService";
 
 const LoginComponent = () => {
@@ -11,7 +11,7 @@ const LoginComponent = () => {
 
   const navigate = useNavigate();
   const { login } = useAuth();
-  const { setUserDetails } = useContext(UserContext);
+  const { setUserDetails } = useCurrentUser();
 
   const handleLogin = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
