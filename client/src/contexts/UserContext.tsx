@@ -9,13 +9,11 @@ type User = {
 type UserContextType = {
   user: User;
   setUserDetails: (id: string, name: string, email: string) => void;
-  clearUserDetails: () => void;
 };
 
 const defaultUserContext: UserContextType = {
   user: { id: null, name: null, email: null },
   setUserDetails: () => {},
-  clearUserDetails: () => {},
 };
 
 export const UserContext = createContext<UserContextType>(defaultUserContext);
@@ -25,21 +23,23 @@ type Props = {
 };
 
 export const UserProvider = ({ children }: Props) => {
-  const [user, setUser] = useState<User>({ id: null, name: null, email: null });
+  const [user, setUser] = useState<User>({
+    id: localStorage.getItem("userId"),
+    name: localStorage.getItem("userName"),
+    email: localStorage.getItem("userEmail"),
+  });
 
   const setUserDetails = (id: string, name: string, email: string) => {
+    localStorage.setItem("userId", id);
+    localStorage.setItem("userName", name);
+    localStorage.setItem("userEmail", email);
     setUser({ id, name, email });
-  };
-
-  const clearUserDetails = () => {
-    setUser({ id: null, name: null, email: null });
   };
 
   const contextValue = useMemo(
     () => ({
       user,
       setUserDetails,
-      clearUserDetails,
     }),
     [user],
   );
