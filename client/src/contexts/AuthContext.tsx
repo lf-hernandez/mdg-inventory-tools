@@ -29,7 +29,7 @@ export const AuthProvider = ({ children }: Props) => {
   };
 
   const logout = () => {
-    localStorage.removeItem("token");
+    localStorage.clear();
     setToken(null);
   };
 
