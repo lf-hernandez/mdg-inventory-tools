@@ -27,6 +27,10 @@ CREATE TABLE item (
     modified_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Create indexes for 'item' table
+CREATE INDEX idx_item_part_number ON item (part_number);
+CREATE INDEX idx_item_purchase_order ON item (purchase_order);
+
 -- Create the 'app_user' table with metadata columns
 CREATE TABLE app_user (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -37,28 +41,24 @@ CREATE TABLE app_user (
     modified_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
--- Create indexes for 'item' table
-CREATE INDEX idx_item_part_number ON item (part_number);
-CREATE INDEX idx_item_purchase_order ON item (purchase_order);
-
 -- Create a function for updating the 'modified_at' column
 CREATE OR REPLACE FUNCTION update_modified_column()
 RETURNS TRIGGER AS $$
 BEGIN
     NEW.modified_at = CURRENT_TIMESTAMP;
-    RETURN NEW; 
+    RETURN NEW;
 END;
 $$ language 'plpgsql';
 
 -- Create triggers for each table to automatically update 'modified_at'
-CREATE TRIGGER update_inventory_modtime 
-BEFORE UPDATE ON inventory 
+CREATE TRIGGER update_inventory_modtime
+BEFORE UPDATE ON inventory
 FOR EACH ROW EXECUTE FUNCTION update_modified_column();
 
-CREATE TRIGGER update_item_modtime 
-BEFORE UPDATE ON item 
+CREATE TRIGGER update_item_modtime
+BEFORE UPDATE ON item
 FOR EACH ROW EXECUTE FUNCTION update_modified_column();
 
-CREATE TRIGGER update_app_user_modtime 
-BEFORE UPDATE ON app_user 
+CREATE TRIGGER update_app_user_modtime
+BEFORE UPDATE ON app_user
 FOR EACH ROW EXECUTE FUNCTION update_modified_column();
