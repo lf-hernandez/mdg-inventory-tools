@@ -132,7 +132,7 @@ export const ItemCard = ({ item, onUpdate }: Props) => {
         ) : (
           <>
             <p>Description: {item.description}</p>
-            <p>Price: ${item.price?.toFixed(2)}</p>
+            <p>Price: ${item.price?.toFixed(2) ?? 0.0}</p>
             <p>Quantity: {item.quantity}</p>
             <p>Purchase Order: {item.purchaseOrder}</p>
             <p>Serial Number: {item.serialNumber}</p>
