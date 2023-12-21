@@ -41,7 +41,7 @@ export const ItemList = () => {
 
   return (
     <section id="itemsListSection">
-      <h2 className="text-2xl font-bold my-4">Items List</h2>
+      <h2 className="text-2xl font-bold my-4">Items list</h2>
       <div id="itemsList">
         {items.map((item) => (
           <ItemCard key={item.id} item={item} onUpdate={handleItemUpdate} />

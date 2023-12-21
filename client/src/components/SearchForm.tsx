@@ -37,7 +37,7 @@ export const SearchForm = () => {
 
   return (
     <section>
-      <h2 className="text-2xl font-bold my-4">Search for an Item</h2>
+      <h2 className="text-2xl font-bold my-4">Search for an item</h2>
       <form onSubmit={handleSubmit} className="mb-4">
         <div className="flex">
           <input
