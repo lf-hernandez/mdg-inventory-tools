@@ -41,6 +41,7 @@ func logError(err error) {
 	}
 }
 
-func logInfo(message string) {
+func logInfo(format string, args ...interface{}) {
+	message := fmt.Sprintf(format, args...)
 	log.Printf("[INFO] %s", message)
 }
