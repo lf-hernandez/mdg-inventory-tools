@@ -2,19 +2,19 @@
 
 .PHONY: fmt vet build run clean
 fmt:
-	go fmt ./...
+	@go fmt ./...
 
 vet: fmt
-	go vet ./...
+	@go vet ./...
 
 build: vet
-	go build -o bin/mdg-inventory-api
+	@go build -o bin/mdg-inventory-api
 
 run: build
-	./bin/mdg-inventory-api
+	@./bin/mdg-inventory-api
 
 test:
-	go test ./...
+	@go test ./...
 
 clean:
-	go clean
+	@go clean
