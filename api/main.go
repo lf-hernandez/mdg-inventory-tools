@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/rs/cors"
@@ -17,10 +18,9 @@ import (
 var db *sql.DB
 
 func main() {
-	fmt.Println("Connecting to database.")
-
+	logInfo("Connecting to database")
 	dsn := os.Getenv("DATABASE_URL")
-	fmt.Println("DSN: ", dsn)
+	logInfo(dsn)
 	var err error
 	db, err = sql.Open("postgres", dsn)
 	if err != nil {
@@ -29,14 +29,15 @@ func main() {
 
 	defer db.Close()
 
-	for i := 0; i < 5; i++ {
+	for connectionAttempt := 0; connectionAttempt < 5; connectionAttempt++ {
 		err = db.Ping()
 		if err == nil {
-			fmt.Println("Connection to database successfully established!")
+			logInfo("Connection to database successfully established!")
 			break
 		}
 
-		fmt.Printf("Attempt %d: Error connecting to database: %v\n", i+1, err)
+		errorMessage := fmt.Errorf("attempt %d: Error connecting to database: %v", connectionAttempt+1, err)
+		logError(errorMessage)
 		time.Sleep(5 * time.Second) // Wait for 5 seconds before retrying
 	}
 
@@ -46,13 +47,12 @@ func main() {
 
 	logInfo("Attempting to bind to port")
 	port := os.Getenv("PORT")
-	logInfo(port)
 	if port == "" {
 		logInfo("PORT not set, defaulting to 8000")
 		port = "8000"
 	}
 
-	fmt.Printf("Starting server on port %v", port)
+	logInfo("Starting server on port %v", port)
 
 	c := cors.New(cors.Options{
 		AllowedOrigins:   []string{os.Getenv("FRONTEND_ORIGIN")},
@@ -61,12 +61,11 @@ func main() {
 		AllowedHeaders:   []string{"*"},
 	})
 
-	mux := http.NewServeMux()
+	requestMultiplexer := http.NewServeMux()
+	requestMultiplexer.Handle("/api/login", corsHandler.Handler(http.HandlerFunc(handleLogin)))
+	requestMultiplexer.Handle("/api/signup", corsHandler.Handler(http.HandlerFunc(handleSignup)))
+	requestMultiplexer.Handle("/api/items", corsHandler.Handler(JwtMiddleware(http.HandlerFunc(routeItems))))
+	requestMultiplexer.Handle("/api/items/", corsHandler.Handler(JwtMiddleware(http.HandlerFunc(routeSpecificItem))))
 
-	mux.Handle("/api/login", c.Handler(http.HandlerFunc(handleLogin)))
-	mux.Handle("/api/signup", c.Handler(http.HandlerFunc(handleSignup)))
-	mux.Handle("/api/items", c.Handler(JwtMiddleware(http.HandlerFunc(routeItems))))
-	mux.Handle("/api/items/", c.Handler(JwtMiddleware(http.HandlerFunc(routeSpecificItem))))
-
-	log.Fatal(http.ListenAndServe(":"+port, c.Handler(mux)))
+	log.Fatal(http.ListenAndServe(":"+port, corsHandler.Handler(requestMultiplexer)))
 }
