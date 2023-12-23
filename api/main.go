@@ -55,6 +55,7 @@ func main() {
 	logInfo("Starting server on port %v", port)
 
 	corsOrigins := strings.Split(os.Getenv("CORS_ORIGINS"), ",")
+	logInfo("cors origins: %v ", corsOrigins)
 	corsHandler := cors.New(cors.Options{
 		AllowedOrigins:   corsOrigins,
 		AllowCredentials: true,
