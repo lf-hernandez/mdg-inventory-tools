@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"os"
-	"strings"
 	"time"
 
 	"github.com/rs/cors"
@@ -18,8 +16,9 @@ import (
 var db *sql.DB
 
 func main() {
+	cfg := loadConfig()
 	logInfo("Connecting to database")
-	dsn := os.Getenv("DATABASE_URL")
+	dsn := cfg.DatabaseURL
 	logInfo(dsn)
 	var err error
 	db, err = sql.Open("postgres", dsn)
@@ -46,28 +45,22 @@ func main() {
 	}
 
 	logInfo("Attempting to bind to port")
-	port := os.Getenv("PORT")
+	port := cfg.Port
 	if port == "" {
 		logInfo("PORT not set, defaulting to 8000")
 		port = "8000"
 	}
 
 	logInfo("Starting server on port %v", port)
+	logInfo("cors origins: %v ", cfg.CORSOrigins)
 
-	corsOrigins := strings.Split(os.Getenv("CORS_ORIGINS"), ",")
-	logInfo("cors origins: %v ", corsOrigins)
 	corsHandler := cors.New(cors.Options{
-		AllowedOrigins:   corsOrigins,
+		AllowedOrigins:   cfg.CORSOrigins,
 		AllowCredentials: true,
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowedHeaders:   []string{"*"},
 	})
 
-	requestMultiplexer := http.NewServeMux()
-	requestMultiplexer.Handle("/api/login", corsHandler.Handler(http.HandlerFunc(handleLogin)))
-	requestMultiplexer.Handle("/api/signup", corsHandler.Handler(http.HandlerFunc(handleSignup)))
-	requestMultiplexer.Handle("/api/items", corsHandler.Handler(JwtMiddleware(http.HandlerFunc(routeItems))))
-	requestMultiplexer.Handle("/api/items/", corsHandler.Handler(JwtMiddleware(http.HandlerFunc(routeSpecificItem))))
-
-	log.Fatal(http.ListenAndServe(":"+port, corsHandler.Handler(requestMultiplexer)))
+	router := initRouter()
+	log.Fatal(http.ListenAndServe(":"+port, corsHandler.Handler(router)))
 }

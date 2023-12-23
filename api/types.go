@@ -2,6 +2,12 @@ package main
 
 import "time"
 
+type Config struct {
+	DatabaseURL string
+	Port        string
+	CORSOrigins []string
+}
+
 type Item struct {
 	ID                string    `json:"id"`
 	PartNumber        string    `json:"partNumber"`
