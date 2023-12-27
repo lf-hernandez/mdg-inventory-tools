@@ -31,6 +31,15 @@ export const UserDropdown = () => {
   };
 
   useEffect(() => {
+    if (!user || !user.name) {
+      toast.error("Invalid session. Please login again.");
+      logout();
+      clearUserDetails();
+      navigate("/login");
+    }
+  }, [user]);
+
+  useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
         dropdownRef.current &&
@@ -48,10 +57,6 @@ export const UserDropdown = () => {
     };
   }, []);
 
-  if (!user.name) {
-    return null;
-  }
-
   return (
     <div className="flex items-center relative">
       <button
@@ -61,7 +66,7 @@ export const UserDropdown = () => {
         aria-expanded={isDropdownVisible}
         ref={userAvatarRef}
       >
-        <UserAvatar fullName={user.name} />
+        <UserAvatar fullName={user.name ?? ""} />
       </button>
       <div
         ref={dropdownRef}
