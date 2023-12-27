@@ -255,3 +255,52 @@ func handleLogin(w http.ResponseWriter, r *http.Request) {
 
 	logInfo(fmt.Sprintf("User logged in: %s", user.Email))
 }
+
+func handleUpdatePassword(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	var passwordResetReq struct {
+		CurrentPassword string `json:"currentPassword"`
+		NewPassword     string `json:"newPassword"`
+	}
+	err := json.NewDecoder(r.Body).Decode(&passwordResetReq)
+	if err != nil {
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	userID, err := authenticateUser(r)
+	if err != nil {
+		http.Error(w, "Unauthorized - token invalid", http.StatusUnauthorized)
+		return
+	}
+
+	user, err := fetchUserByID(userID)
+	if err != nil {
+		http.Error(w, "User not found", http.StatusNotFound)
+		return
+	}
+
+	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(passwordResetReq.CurrentPassword))
+	if err != nil {
+		http.Error(w, "Invalid current password", http.StatusUnauthorized)
+		return
+	}
+
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(passwordResetReq.NewPassword), bcrypt.DefaultCost)
+	if err != nil {
+		logError(err)
+		http.Error(w, "Error updating password", http.StatusInternalServerError)
+		return
+	}
+
+	err = updatePassword(user.ID, string(hashedPassword))
+	if err != nil {
+		logError(err)
+		http.Error(w, "Error updating password", http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(map[string]string{"message": "Password updated successfully"})
+}

@@ -1,12 +1,10 @@
+import { FetchArgs } from "../types";
+
 export async function fetchJson({
   url,
   options,
   includeAuth = true,
-}: {
-  url: string;
-  options?: RequestInit;
-  includeAuth?: boolean;
-}) {
+}: FetchArgs) {
   const headers: Record<string, string> = {};
 
   if (options?.headers) {
@@ -29,6 +27,11 @@ export async function fetchJson({
   });
 
   if (!response.ok) {
+    if (response.status === 401) {
+      localStorage.removeItem("token");
+      window.location.href = "/login";
+      return Promise.reject(new Error("Session expired. Please login again."));
+    }
     throw new Error(`HTTP error! status: ${response.status}`);
   }
   return response.json();

@@ -2,14 +2,15 @@ import { Toaster } from "react-hot-toast";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
 import { AuthProvider } from "./contexts/AuthContext";
+import { UserProvider } from "./contexts/UserContext";
 import "./index.css";
 import { Layout } from "./layout/Layout";
+import AccountSettings from "./pages/AccountSettings";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import { ProtectedRoute } from "./router/ProtectedRoute";
 import { PublicRoute } from "./router/PublicRoute";
-import { UserProvider } from "./contexts/UserContext";
 
 const router = createBrowserRouter([
   {
@@ -20,6 +21,10 @@ const router = createBrowserRouter([
       {
         index: true,
         element: <ProtectedRoute component={Home} />,
+      },
+      {
+        path: "account-settings",
+        element: <ProtectedRoute component={AccountSettings} />,
       },
       {
         path: "login",

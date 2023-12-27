@@ -18,3 +18,9 @@ export type ApiUser = {
   name: string;
   email: string;
 };
+
+export type FetchArgs = {
+  url: string;
+  options?: RequestInit;
+  includeAuth?: boolean;
+};

@@ -35,4 +35,22 @@ export const AuthService = {
 
     return data;
   },
+
+  async updatePassword(
+    currentPassword: string,
+    newPassword: string,
+  ): Promise<{ message: string }> {
+    const data = await fetchJson({
+      url: `${BASE_URL}/update-password`,
+      options: {
+        method: "POST",
+        body: JSON.stringify({ currentPassword, newPassword }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      },
+      includeAuth: true,
+    });
+    return data;
+  },
 };

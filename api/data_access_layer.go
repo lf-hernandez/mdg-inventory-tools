@@ -406,3 +406,35 @@ func fetchUserByEmail(email string) (User, error) {
 
 	return user, nil
 }
+
+func fetchUserByID(userID string) (User, error) {
+	var user User
+
+	err := db.QueryRow(
+		"SELECT id, name, email, password FROM app_user WHERE id = $1",
+		userID,
+	).Scan(&user.ID, &user.Name, &user.Email, &user.Password)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return User{}, fmt.Errorf("no user found with ID %s: %w", userID, err)
+		}
+		return User{}, fmt.Errorf("error executing query: %w", err)
+	}
+
+	return user, nil
+}
+
+func updatePassword(userID, newPassword string) error {
+	stmt, err := db.Prepare("UPDATE app_user SET password = $1 WHERE id = $2")
+	if err != nil {
+		return fmt.Errorf("error preparing statement: %w", err)
+	}
+	defer stmt.Close()
+
+	_, err = stmt.Exec(newPassword, userID)
+	if err != nil {
+		return fmt.Errorf("error executing update statement: %w", err)
+	}
+
+	return nil
+}

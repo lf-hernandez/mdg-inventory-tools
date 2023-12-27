@@ -41,3 +41,38 @@ func extractJwtToken(r *http.Request) string {
 	bearerToken := r.Header.Get("Authorization")
 	return strings.TrimSpace(strings.Replace(bearerToken, "Bearer ", "", 1))
 }
+
+func authenticateUser(r *http.Request) (string, error) {
+	tokenString := extractJwtToken(r)
+
+	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("unexpected signing method")
+		}
+		jwtSecret, err := getJwtSecret()
+		if err != nil {
+			return nil, fmt.Errorf("secret not set")
+		}
+		return []byte(jwtSecret), nil
+	})
+
+	if err != nil {
+		return "", fmt.Errorf("error parsing token: %w", err)
+	}
+
+	if !token.Valid {
+		return "", fmt.Errorf("invalid token")
+	}
+
+	claims, ok := token.Claims.(jwt.MapClaims)
+	if !ok {
+		return "", fmt.Errorf("error extracting claims")
+	}
+
+	userID, ok := claims["user_id"].(string)
+	if !ok {
+		return "", fmt.Errorf("user_id not found in token")
+	}
+
+	return userID, nil
+}
