@@ -31,15 +31,6 @@ export const UserDropdown = () => {
   };
 
   useEffect(() => {
-    if (!user || !user.name) {
-      toast.error("Invalid session. Please login again.");
-      logout();
-      clearUserDetails();
-      navigate("/login");
-    }
-  }, [user]);
-
-  useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
         dropdownRef.current &&
