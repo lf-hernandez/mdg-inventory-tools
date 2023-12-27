@@ -37,6 +37,7 @@ export const UserDropdown = () => {
       clearUserDetails();
       navigate("/login");
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
   useEffect(() => {
