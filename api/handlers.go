@@ -147,49 +147,50 @@ func handleCreateItem(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleSignup(w http.ResponseWriter, r *http.Request) {
-	var newUser User
-	err := json.NewDecoder(r.Body).Decode(&newUser)
-	if err != nil {
-		http.Error(w, "Invalid request body", http.StatusBadRequest)
-		return
-	}
+	http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+	// var newUser User
+	// err := json.NewDecoder(r.Body).Decode(&newUser)
+	// if err != nil {
+	// 	http.Error(w, "Invalid request body", http.StatusBadRequest)
+	// 	return
+	// }
 
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(newUser.Password), bcrypt.DefaultCost)
-	if err != nil {
-		logError(err)
-		http.Error(w, "Error creating user", http.StatusInternalServerError)
-		return
-	}
-	newUser.Password = string(hashedPassword)
+	// hashedPassword, err := bcrypt.GenerateFromPassword([]byte(newUser.Password), bcrypt.DefaultCost)
+	// if err != nil {
+	// 	logError(err)
+	// 	http.Error(w, "Error creating user", http.StatusInternalServerError)
+	// 	return
+	// }
+	// newUser.Password = string(hashedPassword)
 
-	createdUser, err := createUser(newUser)
-	if err != nil {
-		logError(err)
-		http.Error(w, "Error creating user", http.StatusInternalServerError)
-		return
-	}
+	// createdUser, err := createUser(newUser)
+	// if err != nil {
+	// 	logError(err)
+	// 	http.Error(w, "Error creating user", http.StatusInternalServerError)
+	// 	return
+	// }
 
-	tokenString, err := createToken(createdUser.ID)
-	if err != nil {
-		logError(fmt.Errorf("signup error: error creating token for user ID %s: %w", createdUser.ID, err))
-		http.Error(w, "Error creating user token", http.StatusInternalServerError)
-		return
-	}
+	// tokenString, err := createToken(createdUser.ID)
+	// if err != nil {
+	// 	logError(fmt.Errorf("signup error: error creating token for user ID %s: %w", createdUser.ID, err))
+	// 	http.Error(w, "Error creating user token", http.StatusInternalServerError)
+	// 	return
+	// }
 
-	signupResponse := struct {
-		Token string       `json:"token"`
-		User  UserResponse `json:"user"`
-	}{
-		Token: tokenString,
-		User: UserResponse{
-			ID:    createdUser.ID,
-			Name:  createdUser.Name,
-			Email: createdUser.Email,
-		},
-	}
+	// signupResponse := struct {
+	// 	Token string       `json:"token"`
+	// 	User  UserResponse `json:"user"`
+	// }{
+	// 	Token: tokenString,
+	// 	User: UserResponse{
+	// 		ID:    createdUser.ID,
+	// 		Name:  createdUser.Name,
+	// 		Email: createdUser.Email,
+	// 	},
+	// }
 
-	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(signupResponse)
+	// w.WriteHeader(http.StatusCreated)
+	// json.NewEncoder(w).Encode(signupResponse)
 }
 
 func handleLogin(w http.ResponseWriter, r *http.Request) {
