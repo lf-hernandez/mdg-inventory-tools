@@ -83,7 +83,7 @@ export const UserDropdown = () => {
         <hr className="border-gray-300" />
         <button
           onClick={handleAccountSettings}
-          className="block w-full py-2 px-4 text-left text-gray-500 hover:bg-gray-100 hover:text-black font-semibold"
+          className="block w-full py-2 px-4 text-left text-black-500 hover:bg-gray-100 hover:text-black-600 font-semibold"
         >
           Account settings
         </button>
