@@ -23,13 +23,11 @@ To build and start the web server:
 ```bash
 cd /api
 make
-./mdg-inventory-api
 ```
 
 ## [Vite/React Client](client)
 
-The client is a web application that allows users to manage inventory via an
-intuitive graphical interface.
+The client is a web application that allows users to manage inventory.
 
 To run:
 
@@ -38,5 +36,3 @@ cd /client
 npm install
 npm run dev
 ```
-
-This command will launch the client, allowing for inventory management through a web interface.
