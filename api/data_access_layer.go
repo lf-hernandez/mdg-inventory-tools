@@ -5,6 +5,16 @@ import (
 	"fmt"
 )
 
+func fetchTotalItemCount() (int, error) {
+	var count int
+	query := `SELECT COUNT(*) FROM item`
+	err := db.QueryRow(query).Scan(&count)
+	if err != nil {
+		return 0, fmt.Errorf("error fetching total item count: %w", err)
+	}
+	return count, nil
+}
+
 func fetchDbItems(page int, limit int) ([]Item, error) {
 	var items []Item
 

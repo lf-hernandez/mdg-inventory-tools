@@ -43,13 +43,27 @@ func handleGetItems(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	totalCount, err := fetchTotalItemCount()
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Error fetching total item count: %v", err), http.StatusInternalServerError)
+		return
+	}
+
 	items, err := fetchDbItems(page, limit)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	err = json.NewEncoder(w).Encode(items)
+	response := struct {
+		Items      []Item `json:"items"`
+		TotalCount int    `json:"totalCount"`
+	}{
+		Items:      items,
+		TotalCount: totalCount,
+	}
+
+	err = json.NewEncoder(w).Encode(response)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}

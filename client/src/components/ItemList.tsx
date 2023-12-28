@@ -7,6 +7,12 @@ import { PaginationControls } from "./PaginationControls";
 export const ItemList = () => {
   const [items, setItems] = useState<Item[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
+  const [totalItems, setTotalItems] = useState(0);
+  const totalPages = Math.ceil(totalItems / 10);
+
+  const handlePageSelect = (pageNumber: number) => {
+    setCurrentPage(pageNumber);
+  };
 
   const handlePreviousPage = () => {
     if (currentPage > 1) {
@@ -33,8 +39,13 @@ export const ItemList = () => {
   useEffect(() => {
     const fetchItems = async () => {
       try {
-        const fetchedItems = await ItemService.getItems(currentPage);
-        setItems(fetchedItems);
+        const response = await ItemService.getItems(currentPage);
+        if (response && response.items) {
+          setItems(response.items);
+          setTotalItems(response.totalCount);
+        } else {
+          console.error("Invalid response:", response);
+        }
       } catch (error) {
         console.error(error);
       }
@@ -53,8 +64,10 @@ export const ItemList = () => {
       </div>
       <PaginationControls
         currentPage={currentPage}
+        totalPages={totalPages}
         onPreviousPage={handlePreviousPage}
         onNextPage={handleNextPage}
+        onPageSelect={handlePageSelect}
       />
     </section>
   );

@@ -10,8 +10,28 @@ export const ItemService = {
       url: `${BASE_URL}?search=${encodeURIComponent(query)}`,
     });
   },
-  async getItems(page: number = 1): Promise<Item[]> {
-    return fetchJson({ url: `${BASE_URL}?page=${page}&limit=${LIMIT}` });
+  async getItems(page = 1) {
+    try {
+      const response = await fetchJson({
+        url: `${BASE_URL}?page=${page}&limit=${LIMIT}`,
+      });
+      if (
+        response &&
+        typeof response.items !== "undefined" &&
+        typeof response.totalCount !== "undefined"
+      ) {
+        return {
+          items: response.items,
+          totalCount: response.totalCount,
+        };
+      } else {
+        console.error("Unexpected response structure:", response);
+        return { items: [], totalCount: 0 };
+      }
+    } catch (error) {
+      console.error("Error fetching items:", error);
+      throw error;
+    }
   },
   async getItemById(id: number): Promise<Item> {
     return fetchJson({ url: `${BASE_URL}/${id}` });
