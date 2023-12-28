@@ -55,10 +55,7 @@ func handleGetItems(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response := struct {
-		Items      []Item `json:"items"`
-		TotalCount int    `json:"totalCount"`
-	}{
+	response := GetItemsResponse{
 		Items:      items,
 		TotalCount: totalCount,
 	}
@@ -191,10 +188,7 @@ func handleSignup(w http.ResponseWriter, r *http.Request) {
 	// 	return
 	// }
 
-	// signupResponse := struct {
-	// 	Token string       `json:"token"`
-	// 	User  UserResponse `json:"user"`
-	// }{
+	// signupResponse := SignupResponse{
 	// 	Token: tokenString,
 	// 	User: UserResponse{
 	// 		ID:    createdUser.ID,
@@ -244,14 +238,9 @@ func handleLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	type loginResponse struct {
-		Token string       `json:"token"`
-		User  UserResponse `json:"user"`
-	}
-
 	w.Header().Set("Content-Type", "application/json")
 
-	response := loginResponse{
+	response := LoginResponse{
 		Token: tokenString,
 		User: UserResponse{
 			ID:    user.ID,
@@ -273,10 +262,7 @@ func handleLogin(w http.ResponseWriter, r *http.Request) {
 func handleUpdatePassword(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	var passwordResetReq struct {
-		CurrentPassword string `json:"currentPassword"`
-		NewPassword     string `json:"newPassword"`
-	}
+	var passwordResetReq PasswordResetRequest
 	err := json.NewDecoder(r.Body).Decode(&passwordResetReq)
 	if err != nil {
 		http.Error(w, "Invalid request body", http.StatusBadRequest)

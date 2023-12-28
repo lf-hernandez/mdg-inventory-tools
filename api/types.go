@@ -45,3 +45,22 @@ type UserResponse struct {
 	Name  string `json:"name"`
 	Email string `json:"email"`
 }
+
+type LoginResponse struct {
+	Token string       `json:"token"`
+	User  UserResponse `json:"user"`
+}
+
+type SignupResponse struct {
+	Token string       `json:"token"`
+	User  UserResponse `json:"user"`
+}
+type PasswordResetRequest struct {
+	CurrentPassword string `json:"currentPassword"`
+	NewPassword     string `json:"newPassword"`
+}
+
+type GetItemsResponse struct {
+	Items      []Item `json:"items"`
+	TotalCount int    `json:"totalCount"`
+}
