@@ -22,10 +22,6 @@ export const ItemList = () => {
 
   const handleNextPage = () => {
     setCurrentPage(currentPage + 1);
-    const sectionTitle = document.querySelector("#itemsListSection");
-    if (sectionTitle) {
-      sectionTitle.scrollIntoView({ behavior: "smooth" });
-    }
   };
 
   const handleItemUpdate = (updatedItem: Item) => {
@@ -52,6 +48,11 @@ export const ItemList = () => {
     };
 
     fetchItems();
+
+    const sectionTitle = document.querySelector("#itemsListSection");
+    if (sectionTitle) {
+      sectionTitle.scrollIntoView({ behavior: "smooth" });
+    }
   }, [currentPage]);
 
   return (
