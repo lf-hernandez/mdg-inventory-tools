@@ -8,6 +8,8 @@ services:
       - .env
     ports:
       - "5432:5432"
+    networks:
+      - mdg-net
 
   backend:
     build:
@@ -16,11 +18,13 @@ services:
     volumes:
       - ./api:/app
     ports:
-      - "8080:8080"
+      - "8000:8000"
     depends_on:
       - postgres
     env_file:
       - .env
+    networks:
+      - mdg-net
 
   frontend:
     build:
@@ -30,11 +34,17 @@ services:
       - ./client:/app
       - /app/node_modules
     ports:
-      - "80:80"
+      - "0.0.0.0:5173:5173"
+
     depends_on:
       - backend
     env_file:
       - .env
+    networks:
+      - mdg-net
 
 volumes:
   postgres_data:
+
+networks:
+  mdg-net:

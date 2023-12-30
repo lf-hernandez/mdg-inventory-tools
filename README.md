@@ -4,6 +4,16 @@
 
 MDG Inventory Tools is a comprehensive inventory management system, consisting of a Go web api server and a Vite/React client. It allows users to effectively manage inventory data.
 
+## Docker compose development setip
+
+To build and run the project for development:
+
+```bash
+docker compose -f compose.dev.yml up -d
+```
+
+This will spin up all 3 services: db, frontend, and backend and supports hot reload on code changes in the frontend.
+
 ## Database Docker Setup
 
 To build and run the Docker container:
