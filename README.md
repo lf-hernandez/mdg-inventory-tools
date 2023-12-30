@@ -18,7 +18,6 @@ VITE_API_URL=http://backend:8000
 JWT_SECRET=<shh_some_secret>
 DATABASE_URL=postgresql://postgres:postgres@postgres:5432/<db_name>?sslmode=disable
 PORT=8000
-FRONTEND_ORIGIN=http://frontend:5173
 CORS_ORIGINS=http://frontend:5173, frontend:5173
 ```
 
