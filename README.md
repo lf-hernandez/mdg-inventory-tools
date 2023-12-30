@@ -2,17 +2,13 @@
 
 [![Server CI](https://github.com/lf-hernandez/mdg-inventory-tools/actions/workflows/go.yml/badge.svg)](https://github.com/lf-hernandez/mdg-inventory-tools/actions/workflows/go.yml) [![Client CI](https://github.com/lf-hernandez/mdg-inventory-tools/actions/workflows/react.yml/badge.svg)](https://github.com/lf-hernandez/mdg-inventory-tools/actions/workflows/react.yml)
 
-MDG Inventory Tools is a comprehensive inventory management system, comprising a Go web API server and a Vite/React client. It facilitates efficient inventory data management for users.
-
 ## Docker Compose Development Setup
-
-For a seamless development experience with hot reloading support, follow these steps:
 
 ### Prerequisites
 
 - Docker and Docker Compose installed on your machine.
-- Clone the repository to your local machine.
-- Create .env file at project root with the following key-values:
+- Clone the repository.
+- Create .env file at project root with the following environment variables:
 
 ```bash
 POSTGRES_DB=<db_name>
