@@ -105,4 +105,4 @@ The client application provides a user interface for inventory management.
 
 ---
 
-**Note**: Ensure that all the necessary environmental variables and configurations are correctly set up as per the project requirements.
+**Note**: Ensure that all the necessary env vars and configurations are correctly set up as per the project requirements.
