@@ -1,48 +1,113 @@
-# mdg-inventory-tools
+# MDG Inventory Tools
 
 [![Server CI](https://github.com/lf-hernandez/mdg-inventory-tools/actions/workflows/go.yml/badge.svg)](https://github.com/lf-hernandez/mdg-inventory-tools/actions/workflows/go.yml) [![Client CI](https://github.com/lf-hernandez/mdg-inventory-tools/actions/workflows/react.yml/badge.svg)](https://github.com/lf-hernandez/mdg-inventory-tools/actions/workflows/react.yml)
 
-MDG Inventory Tools is a comprehensive inventory management system, consisting of a Go web api server and a Vite/React client. It allows users to effectively manage inventory data.
+MDG Inventory Tools is a comprehensive inventory management system, comprising a Go web API server and a Vite/React client. It facilitates efficient inventory data management for users.
 
-## Docker compose development setip
+## Docker Compose Development Setup
 
-To build and run the project for development:
+For a seamless development experience with hot reloading support, follow these steps:
+
+### Prerequisites
+
+- Docker and Docker Compose installed on your machine.
+- Clone the repository to your local machine.
+- Create .env file at project root with the following key-values:
 
 ```bash
-docker compose -f compose.dev.yml up -d
+POSTGRES_DB=<db_name>
+POSTGRES_USER=<user>
+POSTGRES_PASSWORD=<password>
+VITE_API_URL=http://backend:8000
+JWT_SECRET=<shh_some_secret>
+DATABASE_URL=postgresql://postgres:postgres@postgres:5432/<db_name>?sslmode=disable
+PORT=8000
+FRONTEND_ORIGIN=http://frontend:5173
+CORS_ORIGINS=http://frontend:5173, frontend:5173
 ```
 
-This will spin up all 3 services: db, frontend, and backend and supports hot reload on code changes in the frontend.
+### Running the Services
+
+1. **Start Services**: Navigate to the root directory of the project and run the following command to start all services (PostgreSQL database, Go backend, Vite/React frontend):
+
+   ```bash
+   docker compose -f compose.dev.yml up -d
+   ```
+
+2. **Verify Services**: Ensure that all services are up and running by executing:
+
+   ```bash
+   docker ps
+   ```
+
+3. **Access Services**:
+   - Backend: Accessible at `http://localhost:8000`
+   - Frontend: Accessible at `http://localhost:5173`
+   - Database: Accessible at `localhost:5432`
+
+### Hot Reloading
+
+- The frontend service is configured for hot reloading. Any changes made in the source code will be immediately reflected in the running application.
 
 ## Database Docker Setup
 
-To build and run the Docker container:
+To manually set up the PostgreSQL database in Docker:
 
-```bash
-docker build -t mdg-postgres .
-docker volume create mdg_postgres_data
-docker run -d --name mdg-database -e POSTGRES_DB=mdg -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=postgres -v mdg_postgres_data:/var/lib/postgresql/data -p 5432:5432 mdg-postgres
-```
+1. **Build the PostgreSQL Container**:
+
+   ```bash
+   docker build -t mdg-postgres .
+   ```
+
+2. **Create a Persistent Volume**:
+
+   ```bash
+   docker volume create mdg_postgres_data
+   ```
+
+3. **Run the PostgreSQL Container**:
+
+   ```bash
+   docker run -d --name mdg-database -e POSTGRES_DB=mdg -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=postgres -v mdg_postgres_data:/var/lib/postgresql/data -p 5432:5432 mdg-postgres
+   ```
 
 ## [Go Server](api)
 
-The Go server provides a RESTful API to interact with the inventory database.
+The Go server offers a RESTful API for interacting with the inventory database.
 
-To build and start the web server:
+### Building and Running the Server
 
-```bash
-cd /api
-make
-```
+1. Navigate to the `api` directory:
+
+   ```bash
+   cd api
+   ```
+
+2. Build and start the server:
+
+   ```bash
+   make
+   ```
 
 ## [Vite/React Client](client)
 
-The client is a web application that allows users to manage inventory.
+The client application provides a user interface for inventory management.
 
-To run:
+### Running the Client
 
-```bash
-cd /client
-npm install
-npm run dev
-```
+1. Navigate to the `client` directory:
+
+   ```bash
+   cd client
+   ```
+
+2. Install dependencies and start the client:
+
+   ```bash
+   npm install
+   npm run dev
+   ```
+
+---
+
+**Note**: Ensure that all the necessary environmental variables and configurations are correctly set up as per the project requirements.
