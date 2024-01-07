@@ -31,20 +31,18 @@ services:
       context: ./client
       dockerfile: Dockerfile.dev
     volumes:
-      - ./client:/app
+      - frontend_data:/app
       - /app/node_modules
     ports:
       - "0.0.0.0:5173:5173"
-
     depends_on:
       - backend
     env_file:
       - .env
-    networks:
-      - mdg-net
 
 volumes:
   postgres_data:
+  frontend_data:
 
 networks:
   mdg-net:
