@@ -49,17 +49,17 @@ export const SearchForm = () => {
             onChange={(event) => setQuery(event.target.value)}
           />
           <button
-            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4"
-            type="submit"
-          >
-            Search
-          </button>
-          <button
             type="button"
-            className="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-r-md"
+            className="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4"
             onClick={handleClear}
           >
             Clear
+          </button>
+          <button
+            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-r-md"
+            type="submit"
+          >
+            Search
           </button>
         </div>
       </form>
