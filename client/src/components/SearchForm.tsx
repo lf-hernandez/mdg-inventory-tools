@@ -70,9 +70,11 @@ export const SearchForm = () => {
               No results found. Try different keywords or check for typos.
             </p>
           )}
-        {searchResults?.map((item) => (
-          <ItemCard key={item.id} item={item} onUpdate={handleItemUpdate} />
-        ))}
+        <div id="itemsList" className="overflow-auto max-h-[calc(100vh-250px)]">
+          {searchResults?.map((item) => (
+            <ItemCard key={item.id} item={item} onUpdate={handleItemUpdate} />
+          ))}
+        </div>
       </div>
     </section>
   );

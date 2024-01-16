@@ -58,7 +58,7 @@ export const ItemList = () => {
   return (
     <section id="itemsListSection">
       <h2 className="text-2xl font-bold my-4">Items list</h2>
-      <div id="itemsList">
+      <div id="itemsList" className="overflow-auto max-h-[calc(100vh-250px)]">
         {items.map((item) => (
           <ItemCard key={item.id} item={item} onUpdate={handleItemUpdate} />
         ))}

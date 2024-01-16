@@ -6,9 +6,11 @@ import { UserProvider } from "./contexts/UserContext";
 import "./index.css";
 import { Layout } from "./layout/Layout";
 import AccountSettings from "./pages/AccountSettings";
-import Home from "./pages/Home";
+import AddInventory from "./pages/AddInventory";
 import Login from "./pages/Login";
+import SearchInventory from "./pages/SearchInventory";
 import Signup from "./pages/Signup";
+import ViewInventory from "./pages/ViewInventory";
 import { ProtectedRoute } from "./router/ProtectedRoute";
 import { PublicRoute } from "./router/PublicRoute";
 
@@ -20,7 +22,15 @@ const router = createBrowserRouter([
     children: [
       {
         index: true,
-        element: <ProtectedRoute component={Home} />,
+        element: <ProtectedRoute component={SearchInventory} />,
+      },
+      {
+        path: "add-inventory",
+        element: <ProtectedRoute component={AddInventory} />,
+      },
+      {
+        path: "view-inventory",
+        element: <ProtectedRoute component={ViewInventory} />,
       },
       {
         path: "account-settings",

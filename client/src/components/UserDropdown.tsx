@@ -59,7 +59,7 @@ export const UserDropdown = () => {
   }, []);
 
   return (
-    <div className="flex items-center relative">
+    <div className="relative">
       <button
         onClick={toggleDropdown}
         className="p-2 rounded-full hover:bg-gray-300 focus:outline-none"
@@ -73,8 +73,7 @@ export const UserDropdown = () => {
         ref={dropdownRef}
         className={`${
           isDropdownVisible ? "block" : "hidden"
-        } absolute right-0 mt-2 bg-white border border-gray-300 shadow-lg rounded-lg text-gray-800`}
-        style={{ top: "100%" }}
+        } absolute bottom-full left-0 mb-2 bg-white border border-gray-300 shadow-lg rounded-lg text-gray-800`}
       >
         <div className="p-4">
           <div className="text-lg font-semibold">{user.name}</div>
