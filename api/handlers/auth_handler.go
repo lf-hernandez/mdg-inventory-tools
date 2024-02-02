@@ -33,7 +33,7 @@ func (deps *HandlerDependencies) HandleSignup(w http.ResponseWriter, r *http.Req
 
 	repo := data.NewUserRepository(deps.DB)
 
-	createdUser, err := repo.CreateUser(deps.DB, newUser)
+	createdUser, err := repo.CreateUser(newUser)
 	if err != nil {
 		utils.LogError(err)
 		http.Error(w, "Error creating user", http.StatusInternalServerError)
@@ -73,7 +73,7 @@ func (deps *HandlerDependencies) HandleLogin(w http.ResponseWriter, r *http.Requ
 
 	repo := data.NewUserRepository(deps.DB)
 
-	user, err := repo.FetchUserByEmail(deps.DB, loginUser.Email)
+	user, err := repo.FetchUserByEmail(loginUser.Email)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			utils.LogError(fmt.Errorf("login error: no user found with email %s: %w", loginUser.Email, err))
@@ -139,7 +139,7 @@ func (deps *HandlerDependencies) HandleUpdatePassword(w http.ResponseWriter, r *
 		return
 	}
 
-	user, err := repo.FetchUserByID(deps.DB, userID)
+	user, err := repo.FetchUserByID(userID)
 	if err != nil {
 		http.Error(w, "User not found", http.StatusNotFound)
 		return
@@ -158,7 +158,7 @@ func (deps *HandlerDependencies) HandleUpdatePassword(w http.ResponseWriter, r *
 		return
 	}
 
-	err = repo.UpdatePassword(deps.DB, user.ID, string(hashedPassword))
+	err = repo.UpdatePassword(user.ID, string(hashedPassword))
 	if err != nil {
 		utils.LogError(err)
 		http.Error(w, "Error updating password", http.StatusInternalServerError)

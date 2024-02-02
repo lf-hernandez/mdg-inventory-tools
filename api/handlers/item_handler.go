@@ -19,7 +19,7 @@ func (deps *HandlerDependencies) HandleGetItems(w http.ResponseWriter, r *http.R
 
 	searchQuery := r.URL.Query().Get("search")
 	if searchQuery != "" {
-		items, err := repo.FetchDbItemsWithSearch(deps.DB, searchQuery)
+		items, err := repo.FetchDbItemsWithSearch(searchQuery)
 		if err != nil {
 			utils.LogError(fmt.Errorf("error fetching items with search query '%s': %w", searchQuery, err))
 			http.Error(w, fmt.Sprintf("Error fetching items: %v", err), http.StatusInternalServerError)
@@ -46,13 +46,13 @@ func (deps *HandlerDependencies) HandleGetItems(w http.ResponseWriter, r *http.R
 		}
 	}
 
-	totalCount, err := repo.FetchTotalItemCount(deps.DB)
+	totalCount, err := repo.FetchTotalItemCount()
 	if err != nil {
 		http.Error(w, fmt.Sprintf("Error fetching total item count: %v", err), http.StatusInternalServerError)
 		return
 	}
 
-	items, err := repo.FetchDbItems(deps.DB, page, limit)
+	items, err := repo.FetchDbItems(page, limit)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -81,7 +81,7 @@ func (deps *HandlerDependencies) HandleGetItem(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	item, err := repo.FetchDbItem(deps.DB, itemId)
+	item, err := repo.FetchDbItem(itemId)
 	if err != nil {
 		var statusCode int
 		switch err {
@@ -119,7 +119,7 @@ func (deps *HandlerDependencies) HandleUpdateItem(w http.ResponseWriter, r *http
 	}
 
 	updatedItem.ID = itemId
-	err = repo.UpdateDbItem(deps.DB, &updatedItem)
+	err = repo.UpdateDbItem(&updatedItem)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			http.Error(w, "Item not found", http.StatusNotFound)
@@ -156,7 +156,7 @@ func (deps *HandlerDependencies) HandleCreateItem(w http.ResponseWriter, r *http
 		return
 	}
 
-	createdItem, err := repo.CreateDbItem(deps.DB, newItem)
+	createdItem, err := repo.CreateDbItem(newItem)
 	if err != nil {
 		http.Error(w, fmt.Sprintf("Error creating item: %v", err), http.StatusInternalServerError)
 		return

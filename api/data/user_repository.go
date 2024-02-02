@@ -15,7 +15,7 @@ func NewUserRepository(db *sql.DB) *UserRepository {
 	return &UserRepository{DB: db}
 }
 
-func (repo *UserRepository) CreateUser(db *sql.DB, user models.User) (models.User, error) {
+func (repo *UserRepository) CreateUser(user models.User) (models.User, error) {
 	stmt, err := repo.DB.Prepare(`
 	INSERT INTO app_user (
 		name,
@@ -42,7 +42,7 @@ func (repo *UserRepository) CreateUser(db *sql.DB, user models.User) (models.Use
 	return user, nil
 }
 
-func (repo *UserRepository) FetchUserByEmail(db *sql.DB, email string) (models.User, error) {
+func (repo *UserRepository) FetchUserByEmail(email string) (models.User, error) {
 	var user models.User
 
 	err := repo.DB.QueryRow(
@@ -59,7 +59,7 @@ func (repo *UserRepository) FetchUserByEmail(db *sql.DB, email string) (models.U
 	return user, nil
 }
 
-func (repo *UserRepository) FetchUserByID(db *sql.DB, userID string) (models.User, error) {
+func (repo *UserRepository) FetchUserByID(userID string) (models.User, error) {
 	var user models.User
 
 	err := repo.DB.QueryRow(
@@ -76,7 +76,7 @@ func (repo *UserRepository) FetchUserByID(db *sql.DB, userID string) (models.Use
 	return user, nil
 }
 
-func (repo *UserRepository) UpdatePassword(db *sql.DB, userID, newPassword string) error {
+func (repo *UserRepository) UpdatePassword(userID, newPassword string) error {
 	stmt, err := repo.DB.Prepare("UPDATE app_user SET password = $1 WHERE id = $2")
 	if err != nil {
 		return fmt.Errorf("error preparing statement: %w", err)

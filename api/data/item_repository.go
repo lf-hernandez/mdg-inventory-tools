@@ -16,7 +16,7 @@ func NewItemRepository(db *sql.DB) *ItemRepository {
 	return &ItemRepository{DB: db}
 }
 
-func (repo *ItemRepository) FetchTotalItemCount(db *sql.DB) (int, error) {
+func (repo *ItemRepository) FetchTotalItemCount() (int, error) {
 	var count int
 	query := `SELECT COUNT(*) FROM item`
 	err := repo.DB.QueryRow(query).Scan(&count)
@@ -26,7 +26,7 @@ func (repo *ItemRepository) FetchTotalItemCount(db *sql.DB) (int, error) {
 	return count, nil
 }
 
-func (repo *ItemRepository) FetchDbItems(db *sql.DB, page int, limit int) ([]models.Item, error) {
+func (repo *ItemRepository) FetchDbItems(page int, limit int) ([]models.Item, error) {
 	var items []models.Item
 
 	offset := (page - 1) * limit
@@ -120,7 +120,7 @@ func (repo *ItemRepository) FetchDbItems(db *sql.DB, page int, limit int) ([]mod
 	return items, nil
 }
 
-func (repo *ItemRepository) FetchDbItemsWithSearch(db *sql.DB, searchQuery string) ([]models.Item, error) {
+func (repo *ItemRepository) FetchDbItemsWithSearch(searchQuery string) ([]models.Item, error) {
 	var items []models.Item
 
 	likeQuery := "%" + searchQuery + "%"
@@ -216,7 +216,7 @@ func (repo *ItemRepository) FetchDbItemsWithSearch(db *sql.DB, searchQuery strin
 	return items, nil
 }
 
-func (repo *ItemRepository) FetchDbItem(db *sql.DB, partNumber string) (models.Item, error) {
+func (repo *ItemRepository) FetchDbItem(partNumber string) (models.Item, error) {
 	var (
 		item              models.Item
 		description       sql.NullString
@@ -296,7 +296,7 @@ func (repo *ItemRepository) FetchDbItem(db *sql.DB, partNumber string) (models.I
 	return item, nil
 }
 
-func (repo *ItemRepository) UpdateDbItem(db *sql.DB, item *models.Item) error {
+func (repo *ItemRepository) UpdateDbItem(item *models.Item) error {
 	if err := utils.ValidateItem(item); err != nil {
 		return fmt.Errorf("validation failed: %w", err)
 	}
@@ -336,7 +336,7 @@ func (repo *ItemRepository) UpdateDbItem(db *sql.DB, item *models.Item) error {
 	return nil
 }
 
-func (repo *ItemRepository) CreateDbItem(db *sql.DB, item models.Item) (models.Item, error) {
+func (repo *ItemRepository) CreateDbItem(item models.Item) (models.Item, error) {
 	if err := utils.ValidateItem(&item); err != nil {
 		return models.Item{}, fmt.Errorf("validation failed: %w", err)
 	}
