@@ -1,11 +1,11 @@
-package main
+package config
 
 import (
 	"os"
 	"strings"
 )
 
-func loadConfig() Config {
+func LoadConfig() Config {
 	return Config{
 		DatabaseURL: os.Getenv("DATABASE_URL"),
 		Port:        os.Getenv("PORT"),

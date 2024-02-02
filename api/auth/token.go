@@ -1,29 +1,15 @@
-package main
+package auth
 
 import (
 	"fmt"
 	"net/http"
-	"os"
 	"strings"
 	"time"
 
 	"github.com/golang-jwt/jwt"
 )
 
-func getJwtSecret() (string, error) {
-	jwtSecret := os.Getenv("JWT_SECRET")
-	if jwtSecret == "" {
-		return "", fmt.Errorf("JWT secret not set")
-	}
-	return jwtSecret, nil
-}
-
-func createToken(userId string) (string, error) {
-	jwtSecret, err := getJwtSecret()
-	if err != nil {
-		return "", err
-	}
-
+func CreateToken(userId, jwtSecret string) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"user_id": userId,
 		"exp":     time.Now().Add(time.Hour * 72).Unix(),
@@ -37,22 +23,19 @@ func createToken(userId string) (string, error) {
 	return tokenString, nil
 }
 
-func extractJwtToken(r *http.Request) string {
+func ExtractJwtToken(r *http.Request) string {
 	bearerToken := r.Header.Get("Authorization")
 	return strings.TrimSpace(strings.Replace(bearerToken, "Bearer ", "", 1))
 }
 
-func authenticateUser(r *http.Request) (string, error) {
-	tokenString := extractJwtToken(r)
+func AuthenticateUser(r *http.Request, jwtSecret string) (string, error) {
+	tokenString := ExtractJwtToken(r)
 
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method")
 		}
-		jwtSecret, err := getJwtSecret()
-		if err != nil {
-			return nil, fmt.Errorf("secret not set")
-		}
+
 		return []byte(jwtSecret), nil
 	})
 

@@ -1,22 +1,33 @@
-package main
+package data
 
 import (
 	"database/sql"
 	"fmt"
+
+	"github.com/lf-hernandez/mdg-inventory-tools/api/models"
+	"github.com/lf-hernandez/mdg-inventory-tools/api/utils"
 )
 
-func fetchTotalItemCount() (int, error) {
+type ItemRepository struct {
+	DB *sql.DB
+}
+
+func NewItemRepository(db *sql.DB) *ItemRepository {
+	return &ItemRepository{DB: db}
+}
+
+func (repo *ItemRepository) FetchTotalItemCount(db *sql.DB) (int, error) {
 	var count int
 	query := `SELECT COUNT(*) FROM item`
-	err := db.QueryRow(query).Scan(&count)
+	err := repo.DB.QueryRow(query).Scan(&count)
 	if err != nil {
 		return 0, fmt.Errorf("error fetching total item count: %w", err)
 	}
 	return count, nil
 }
 
-func fetchDbItems(page int, limit int) ([]Item, error) {
-	var items []Item
+func (repo *ItemRepository) FetchDbItems(db *sql.DB, page int, limit int) ([]models.Item, error) {
+	var items []models.Item
 
 	offset := (page - 1) * limit
 	query := `
@@ -35,7 +46,7 @@ func fetchDbItems(page int, limit int) ([]Item, error) {
 		FROM item
 		ORDER BY id
 		LIMIT $1 OFFSET $2`
-	rows, err := db.Query(query, limit, offset)
+	rows, err := repo.DB.Query(query, limit, offset)
 	if err != nil {
 		return nil, fmt.Errorf("error executing query: %w", err)
 	}
@@ -43,7 +54,7 @@ func fetchDbItems(page int, limit int) ([]Item, error) {
 
 	for rows.Next() {
 		var (
-			item              Item
+			item              models.Item
 			description       sql.NullString
 			price             sql.NullFloat64
 			quantity          sql.NullInt64
@@ -109,8 +120,8 @@ func fetchDbItems(page int, limit int) ([]Item, error) {
 	return items, nil
 }
 
-func fetchDbItemsWithSearch(searchQuery string) ([]Item, error) {
-	var items []Item
+func (repo *ItemRepository) FetchDbItemsWithSearch(db *sql.DB, searchQuery string) ([]models.Item, error) {
+	var items []models.Item
 
 	likeQuery := "%" + searchQuery + "%"
 
@@ -130,7 +141,7 @@ func fetchDbItemsWithSearch(searchQuery string) ([]Item, error) {
 			WHERE part_number = $1
 			OR serial_number = $1
 			OR description ILIKE $2`
-	rows, err := db.Query(query, searchQuery, likeQuery)
+	rows, err := repo.DB.Query(query, searchQuery, likeQuery)
 	if err != nil {
 		return nil, fmt.Errorf("error executing query: %w", err)
 	}
@@ -139,7 +150,7 @@ func fetchDbItemsWithSearch(searchQuery string) ([]Item, error) {
 
 	for rows.Next() {
 		var (
-			item              Item
+			item              models.Item
 			description       sql.NullString
 			price             sql.NullFloat64
 			quantity          sql.NullInt64
@@ -205,9 +216,9 @@ func fetchDbItemsWithSearch(searchQuery string) ([]Item, error) {
 	return items, nil
 }
 
-func fetchDbItem(partNumber string) (Item, error) {
+func (repo *ItemRepository) FetchDbItem(db *sql.DB, partNumber string) (models.Item, error) {
 	var (
-		item              Item
+		item              models.Item
 		description       sql.NullString
 		price             sql.NullFloat64
 		quantity          sql.NullInt64
@@ -218,7 +229,7 @@ func fetchDbItem(partNumber string) (Item, error) {
 		repairOrderNumber sql.NullString
 		condition         sql.NullString
 	)
-	err := db.
+	err := repo.DB.
 		QueryRow(`
 		SELECT
 			id,
@@ -248,9 +259,9 @@ func fetchDbItem(partNumber string) (Item, error) {
 			&condition)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return Item{}, fmt.Errorf("no item found with part number %s: %w", partNumber, err)
+			return models.Item{}, fmt.Errorf("no item found with part number %s: %w", partNumber, err)
 		}
-		return Item{}, fmt.Errorf("error executing query: %w", err)
+		return models.Item{}, fmt.Errorf("error executing query: %w", err)
 	}
 
 	if description.Valid {
@@ -285,12 +296,12 @@ func fetchDbItem(partNumber string) (Item, error) {
 	return item, nil
 }
 
-func updateDbItem(item *Item) error {
-	if err := validateItem(item); err != nil {
+func (repo *ItemRepository) UpdateDbItem(db *sql.DB, item *models.Item) error {
+	if err := utils.ValidateItem(item); err != nil {
 		return fmt.Errorf("validation failed: %w", err)
 	}
 
-	stmt, err := db.Prepare(`
+	stmt, err := repo.DB.Prepare(`
 		UPDATE item
 		SET description = $1,
 			price = $2,
@@ -325,12 +336,12 @@ func updateDbItem(item *Item) error {
 	return nil
 }
 
-func createDbItem(item Item) (Item, error) {
-	if err := validateItem(&item); err != nil {
-		return Item{}, fmt.Errorf("validation failed: %w", err)
+func (repo *ItemRepository) CreateDbItem(db *sql.DB, item models.Item) (models.Item, error) {
+	if err := utils.ValidateItem(&item); err != nil {
+		return models.Item{}, fmt.Errorf("validation failed: %w", err)
 	}
 
-	stmt, err := db.Prepare(`
+	stmt, err := repo.DB.Prepare(`
 		INSERT INTO item (
 			part_number,
 			description,
@@ -347,7 +358,7 @@ func createDbItem(item Item) (Item, error) {
 	`)
 
 	if err != nil {
-		return Item{}, fmt.Errorf("error preparing statement: %w", err)
+		return models.Item{}, fmt.Errorf("error preparing statement: %w", err)
 	}
 	defer stmt.Close()
 
@@ -366,85 +377,9 @@ func createDbItem(item Item) (Item, error) {
 			item.Condition).
 		Scan(&id)
 	if err != nil {
-		return Item{}, fmt.Errorf("error executing SQL statement: %w", err)
+		return models.Item{}, fmt.Errorf("error executing SQL statement: %w", err)
 	}
 
 	item.ID = id
 	return item, nil
-}
-
-func createUser(user User) (User, error) {
-	stmt, err := db.Prepare(`
-	INSERT INTO app_user (
-		name,
-		email,
-		password
-	) VALUES ($1, $2, $3)
-	RETURNING id
-	`)
-
-	if err != nil {
-		return User{}, fmt.Errorf("error preparing statement: %w", err)
-	}
-
-	defer stmt.Close()
-
-	var id string
-
-	err = stmt.QueryRow(user.Name, user.Email, user.Password).Scan(&id)
-	if err != nil {
-		return User{}, fmt.Errorf("error executing SQL statement: %w", err)
-	}
-
-	user.ID = id
-	return user, nil
-}
-
-func fetchUserByEmail(email string) (User, error) {
-	var user User
-
-	err := db.QueryRow(
-		"SELECT id, name, email, password FROM app_user WHERE email = $1",
-		email,
-	).Scan(&user.ID, &user.Name, &user.Email, &user.Password)
-	if err != nil {
-		if err == sql.ErrNoRows {
-			return User{}, fmt.Errorf("no user found with email %s: %w", email, err)
-		}
-		return User{}, fmt.Errorf("error executing query: %w", err)
-	}
-
-	return user, nil
-}
-
-func fetchUserByID(userID string) (User, error) {
-	var user User
-
-	err := db.QueryRow(
-		"SELECT id, name, email, password FROM app_user WHERE id = $1",
-		userID,
-	).Scan(&user.ID, &user.Name, &user.Email, &user.Password)
-	if err != nil {
-		if err == sql.ErrNoRows {
-			return User{}, fmt.Errorf("no user found with ID %s: %w", userID, err)
-		}
-		return User{}, fmt.Errorf("error executing query: %w", err)
-	}
-
-	return user, nil
-}
-
-func updatePassword(userID, newPassword string) error {
-	stmt, err := db.Prepare("UPDATE app_user SET password = $1 WHERE id = $2")
-	if err != nil {
-		return fmt.Errorf("error preparing statement: %w", err)
-	}
-	defer stmt.Close()
-
-	_, err = stmt.Exec(newPassword, userID)
-	if err != nil {
-		return fmt.Errorf("error executing update statement: %w", err)
-	}
-
-	return nil
 }
