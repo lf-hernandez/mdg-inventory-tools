@@ -15,3 +15,8 @@ func LogInfo(format string, args ...interface{}) {
 	message := fmt.Sprintf(format, args...)
 	log.Printf("[INFO] %s", message)
 }
+
+func LogFatal(format string, args ...interface{}) {
+	message := fmt.Sprintf(format, args...)
+	log.Fatalf("[FATAL] %s", message)
+}

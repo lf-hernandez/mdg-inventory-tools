@@ -21,31 +21,29 @@ var db *sql.DB
 
 func main() {
 	cfg := config.LoadConfig()
-	utils.LogInfo("Connecting to database")
-	dsn := cfg.DatabaseURL
-	utils.LogInfo(dsn)
-	var err error
-	db, err = sql.Open("postgres", dsn)
-	if err != nil {
-		log.Fatalf("Error opening connection to database: %v\nDSN: %s", err, dsn)
-	}
 
+	utils.LogInfo("Connecting to database")
+	utils.LogInfo(cfg.Database.URL)
+
+	var err error
+	db, err = sql.Open("postgres", cfg.Database.URL)
+	if err != nil {
+		utils.LogError(fmt.Errorf("error opening connection to database: %v", err))
+		os.Exit(1)
+	}
 	defer db.Close()
 
-	for connectionAttempt := 0; connectionAttempt < 5; connectionAttempt++ {
+	for i := 0; i < cfg.Database.MaxRetry; i++ {
 		err = db.Ping()
 		if err == nil {
 			utils.LogInfo("Connection to database successfully established!")
 			break
 		}
-
-		errorMessage := fmt.Errorf("attempt %d: Error connecting to database: %v", connectionAttempt+1, err)
-		utils.LogError(errorMessage)
-		time.Sleep(5 * time.Second) // Wait for 5 seconds before retrying
+		utils.LogInfo("Attempt %d: Error connecting to database: %v", i+1, err)
+		time.Sleep(5 * time.Second)
 	}
-
 	if err != nil {
-		log.Fatalf("After several attempts, failed to connect to database: %v\n", err)
+		utils.LogFatal("Failed to connect to database after %d attempts: %v", cfg.Database.MaxRetry, err)
 	}
 
 	utils.LogInfo("Attempting to bind to port")
@@ -58,6 +56,7 @@ func main() {
 	utils.LogInfo("Starting server on port %v", port)
 	utils.LogInfo("cors origins: %v ", cfg.CORSOrigins)
 
+	router := initRouter(handlers.NewHandlerDependencies(db, cfg.JWTSecret))
 	corsHandler := cors.New(cors.Options{
 		AllowedOrigins:   cfg.CORSOrigins,
 		AllowCredentials: true,
@@ -65,13 +64,6 @@ func main() {
 		AllowedHeaders:   []string{"*"},
 	})
 
-	jwtSecret := os.Getenv("JWT_SECRET")
-	if jwtSecret == "" {
-		log.Fatal("JWT secret is not set")
-	}
-
-	deps := handlers.NewHandlerDependencies(db, jwtSecret)
-	router := initRouter(deps)
-
-	log.Fatal(http.ListenAndServe(":"+port, corsHandler.Handler(router)))
+	utils.LogInfo("Starting server on port %s", cfg.Port)
+	log.Fatal(http.ListenAndServe(":"+cfg.Port, corsHandler.Handler(router)))
 }
