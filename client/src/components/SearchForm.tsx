@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { ItemService } from "../services/ItemService";
+import { LoadingSpinner } from "../shared";
 import type { Item } from "../types";
 import { ItemCard } from "./ItemCard";
 
@@ -7,8 +8,10 @@ export const SearchForm = () => {
   const [query, setQuery] = useState("");
   const [searchResults, setSearchResults] = useState<Array<Item> | null>(null);
   const [isSearched, setIsSearched] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    setIsLoading(true);
     event.preventDefault();
     setIsSearched(true);
     if (!query.trim()) return;
@@ -17,6 +20,8 @@ export const SearchForm = () => {
       setSearchResults(items);
     } catch (error) {
       console.error("Error:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -64,15 +69,18 @@ export const SearchForm = () => {
         </div>
       </form>
       <div>
-        {isSearched &&
-          (searchResults === null || searchResults.length === 0) && (
-            <p className="text-center text-gray-600">
-              No results found. Try different keywords or check for typos.
-            </p>
-          )}
-        {searchResults?.map((item) => (
-          <ItemCard key={item.id} item={item} onUpdate={handleItemUpdate} />
-        ))}
+        {isSearched && isLoading ? (
+          <LoadingSpinner />
+        ) : isSearched &&
+          (searchResults === null || searchResults.length === 0) ? (
+          <p className="text-center text-gray-600">
+            No results found. Try different keywords or check for typos.
+          </p>
+        ) : (
+          searchResults?.map((item) => (
+            <ItemCard key={item.id} item={item} onUpdate={handleItemUpdate} />
+          ))
+        )}
       </div>
     </section>
   );
