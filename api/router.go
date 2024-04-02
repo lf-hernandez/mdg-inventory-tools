@@ -9,15 +9,16 @@ import (
 
 func initRouter(deps *handlers.HandlerDependencies) *http.ServeMux {
 	mux := http.NewServeMux()
-	mux.Handle("/api/login", http.HandlerFunc(deps.HandleLogin))
-	mux.Handle("/api/signup", http.HandlerFunc(deps.HandleSignup))
-	mux.Handle("/api/update-password", middleware.JwtMiddleware(deps.JwtSecret, http.HandlerFunc(deps.HandleUpdatePassword)))
-	mux.Handle("/api/items", middleware.JwtMiddleware(deps.JwtSecret, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		routeItems(deps, w, r)
-	})))
-	mux.Handle("/api/items/", middleware.JwtMiddleware(deps.JwtSecret, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		routeSpecificItem(deps, w, r)
-	})))
+
+	mux.Handle("POST /api/login", http.HandlerFunc(deps.HandleLogin))
+	mux.Handle("POST /api/signup", http.HandlerFunc(deps.HandleSignup))
+
+	mux.Handle("POST /api/update-password", middleware.JwtMiddleware(deps.JwtSecret, http.HandlerFunc(deps.HandleUpdatePassword)))
+
+	mux.Handle("GET /api/items", middleware.JwtMiddleware(deps.JwtSecret, http.HandlerFunc(deps.HandleGetItems)))
+	mux.Handle("POST /api/items", middleware.JwtMiddleware(deps.JwtSecret, http.HandlerFunc(deps.HandleCreateItem)))
+	mux.Handle("GET /api/items/{id}", middleware.JwtMiddleware(deps.JwtSecret, http.HandlerFunc(deps.HandleGetItem)))
+	mux.Handle("PUT /api/items/{id}", middleware.JwtMiddleware(deps.JwtSecret, http.HandlerFunc(deps.HandleUpdateItem)))
 
 	return mux
 }

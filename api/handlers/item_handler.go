@@ -72,15 +72,9 @@ func (deps *HandlerDependencies) HandleGetItems(w http.ResponseWriter, r *http.R
 func (deps *HandlerDependencies) HandleGetItem(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
+	itemId := r.PathValue("id")
+
 	repo := data.NewItemRepository(deps.DB)
-
-	itemId, err := utils.ExtractPathParam(r.URL.Path, "/api/items/")
-	if err != nil {
-		utils.LogError(fmt.Errorf("error fetching item with ID '%s': %w", itemId, err))
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-
 	item, err := repo.FetchDbItem(itemId)
 	if err != nil {
 		var statusCode int
@@ -104,15 +98,10 @@ func (deps *HandlerDependencies) HandleUpdateItem(w http.ResponseWriter, r *http
 
 	repo := data.NewItemRepository(deps.DB)
 
-	itemId, err := utils.ExtractPathParam(r.URL.Path, "/api/items/")
-	if err != nil {
-		utils.LogError(fmt.Errorf("error updating item with ID '%s': %w", itemId, err))
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
+	itemId := r.PathValue("id")
 
 	var updatedItem models.Item
-	err = json.NewDecoder(r.Body).Decode(&updatedItem)
+	err := json.NewDecoder(r.Body).Decode(&updatedItem)
 	if err != nil {
 		http.Error(w, "Invalid request body", http.StatusBadRequest)
 		return
