@@ -75,25 +75,31 @@ export const ItemList = () => {
     <section id="itemsListSection">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold my-4">Items list</h2>
-        <button
-          onClick={handleExport}
-          className="l-auto bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
-        >
-          Export
-        </button>
+        {items && items.length > 0 && (
+          <button
+            onClick={handleExport}
+            className="l-auto bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
+          >
+            Export
+          </button>
+        )}
       </div>
-      <div id="itemsList">
-        {items.map((item) => (
-          <ItemCard key={item.id} item={item} onUpdate={handleItemUpdate} />
-        ))}
-      </div>
-      <PaginationControls
-        currentPage={currentPage}
-        totalPages={totalPages}
-        onPreviousPage={handlePreviousPage}
-        onNextPage={handleNextPage}
-        onPageSelect={handlePageSelect}
-      />
+      {items && items.length > 0 && (
+        <>
+          <div id="itemsList">
+            {items.map((item) => (
+              <ItemCard key={item.id} item={item} onUpdate={handleItemUpdate} />
+            ))}
+          </div>
+          <PaginationControls
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPreviousPage={handlePreviousPage}
+            onNextPage={handleNextPage}
+            onPageSelect={handlePageSelect}
+          />
+        </>
+      )}
     </section>
   );
 };
