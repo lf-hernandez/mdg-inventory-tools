@@ -185,3 +185,6 @@ api/bin/
 
 # Go workspace file
 go.work
+
+# Docker compose env
+.compose.env
