@@ -1,16 +1,26 @@
 import type { Item } from "../types";
-import { fetchJson } from "../utils/http";
+import { fetchJson, fetchText } from "../utils/http";
 
 const BASE_URL = `${import.meta.env.VITE_API_URL}/api/items`;
 const LIMIT = 10;
 
 export const ItemService = {
+  async exportInventory(): Promise<string> {
+    return fetchText({
+      url: `${BASE_URL}/csv`,
+    });
+  },
+  async exportSearch(query: string): Promise<string> {
+    return fetchText({
+      url: `${BASE_URL}?search=${encodeURIComponent(query)}`,
+    });
+  },
   async searchItems(query: string): Promise<Item[]> {
     return fetchJson({
       url: `${BASE_URL}?search=${encodeURIComponent(query)}`,
     });
   },
-  async getItems(page = 1) {
+  async getItems(page = 1): Promise<{ items: Item[]; totalCount: number }> {
     try {
       const response = await fetchJson({
         url: `${BASE_URL}?page=${page}&limit=${LIMIT}`,

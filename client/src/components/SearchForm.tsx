@@ -1,4 +1,7 @@
+import saveAs from "file-saver";
+import moment from "moment";
 import { useState } from "react";
+
 import { ItemService } from "../services/ItemService";
 import { LoadingSpinner } from "../shared";
 import type { Item } from "../types";
@@ -40,9 +43,31 @@ export const SearchForm = () => {
     );
   };
 
+  const handleExport = async () => {
+    try {
+      const response = await ItemService.exportSearch(query);
+      const blob = new Blob([response], { type: "text/csv" });
+
+      const currentDate = moment().format("MM_DD_YYYY");
+
+      saveAs(blob, `mdg_${query}_inventory_${currentDate}.csv`);
+    } catch (error) {
+      console.error(error);
+    }
+  };
   return (
     <section>
-      <h2 className="text-2xl font-bold my-4">Search for an item</h2>
+      <div className="flex justify-between items-center">
+        <h2 className="text-2xl font-bold my-4">Search for an item</h2>
+        {searchResults && searchResults.length > 0 && (
+          <button
+            onClick={handleExport}
+            className="l-auto bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
+          >
+            Export results
+          </button>
+        )}
+      </div>
       <form onSubmit={handleSubmit} className="mb-4">
         <div className="flex">
           <input

@@ -29,24 +29,47 @@ func (repo *ItemRepository) FetchTotalItemCount() (int, error) {
 func (repo *ItemRepository) FetchDbItems(page int, limit int) ([]models.Item, error) {
 	var items []models.Item
 
-	offset := (page - 1) * limit
-	query := `
-		SELECT
-			id,
-			part_number,
-			description,
-			price,
-			quantity,
-			serial_number,
-			purchase_order,
-			category,
-			status,
-			repair_order_number,
-			condition
-		FROM item
-		ORDER BY id
-		LIMIT $1 OFFSET $2`
-	rows, err := repo.DB.Query(query, limit, offset)
+	var query string
+	var args []interface{}
+
+	if page < 0 && limit < 0 {
+		query = `
+			SELECT
+				id,
+				part_number,
+				description,
+				price,
+				quantity,
+				serial_number,
+				purchase_order,
+				category,
+				status,
+				repair_order_number,
+				condition
+			FROM item
+			ORDER BY id`
+	} else {
+		offset := (page - 1) * limit
+		query = `
+			SELECT
+				id,
+				part_number,
+				description,
+				price,
+				quantity,
+				serial_number,
+				purchase_order,
+				category,
+				status,
+				repair_order_number,
+				condition
+			FROM item
+			ORDER BY id
+			LIMIT $1 OFFSET $2`
+		args = append(args, limit, offset)
+	}
+
+	rows, err := repo.DB.Query(query, args...)
 	if err != nil {
 		return nil, fmt.Errorf("error executing query: %w", err)
 	}
