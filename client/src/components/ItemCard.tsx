@@ -128,6 +128,13 @@ export const ItemCard = ({ item, onUpdate }: Props) => {
               value={editItem.condition}
               onChange={handleEditChange}
             />
+            <InputField
+              label="Location"
+              type="text"
+              name="location"
+              value={editItem.location}
+              onChange={handleEditChange}
+            />
           </>
         ) : (
           <>
@@ -140,6 +147,7 @@ export const ItemCard = ({ item, onUpdate }: Props) => {
             <p>Status: {item.status}</p>
             <p>Repair Order Number: {item.repairOrderNumber}</p>
             <p>Condition: {item.condition}</p>
+            <p>Location: {item.location}</p>
           </>
         )}
       </div>

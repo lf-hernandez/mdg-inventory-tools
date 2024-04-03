@@ -130,6 +130,12 @@ export const AddItemForm = () => {
               value={item.condition ?? ""}
               onChange={handleChange}
             />
+            <InputField
+              label="Location"
+              name="location"
+              value={item.location ?? ""}
+              onChange={handleChange}
+            />
           </div>
           <div className="flex justify-between items-center mt-4">
             <p className={`text-red-500 text-sm ${error ? "block" : "hidden"}`}>

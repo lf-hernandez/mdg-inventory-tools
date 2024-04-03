@@ -11,6 +11,7 @@ export type Item = {
   repairOrderNumber: string;
   condition: string;
   inventoryID: string;
+  location: string;
 };
 
 export type ApiUser = {
