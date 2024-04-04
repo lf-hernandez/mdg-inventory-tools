@@ -74,7 +74,7 @@ export const ItemList = () => {
   return (
     <section id="itemsListSection">
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold my-4">Items list</h2>
+        <h2 className="text-2xl font-bold my-4">Inventory</h2>
         {items && items.length > 0 && (
           <button
             onClick={handleExport}
