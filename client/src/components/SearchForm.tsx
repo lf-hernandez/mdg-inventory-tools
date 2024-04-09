@@ -1,5 +1,4 @@
 import saveAs from "file-saver";
-import moment from "moment";
 import { useState } from "react";
 import * as amplitude from "@amplitude/analytics-browser";
 
@@ -55,7 +54,7 @@ export const SearchForm = () => {
       const response = await ItemService.exportSearch(query);
       const blob = new Blob([response], { type: "text/csv" });
 
-      const currentDate = moment().format("MM_DD_YYYY");
+      const currentDate = new Date().toLocaleDateString().replace("//g", "-");
 
       saveAs(blob, `mdg_${query}_inventory_${currentDate}.csv`);
     } catch (error) {
