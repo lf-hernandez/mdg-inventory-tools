@@ -15,7 +15,7 @@ CREATE TABLE inventory (
 -- Create the 'item' table with metadata columns
 CREATE TABLE item (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    part_number TEXT NOT NULL,
+    part_number TEXT NOT NULL UNIQUE,
     serial_number TEXT,
     purchase_order TEXT,
     description TEXT,
