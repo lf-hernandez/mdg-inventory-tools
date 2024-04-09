@@ -12,6 +12,7 @@
     "start": "serve -s dist"
   },
   "dependencies": {
+    "@amplitude/analytics-browser": "^2.6.1",
     "file-saver": "^2.0.5",
     "localforage": "^1.10.0",
     "match-sorter": "^6.3.1",
