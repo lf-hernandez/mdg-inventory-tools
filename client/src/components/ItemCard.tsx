@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { toast } from "react-hot-toast";
+import * as amplitude from "@amplitude/analytics-browser";
 
 import { ItemService } from "../services/ItemService";
 import type { Item } from "../types";
@@ -38,9 +39,11 @@ export const ItemCard = ({ item, onUpdate }: Props) => {
       onUpdate(updatedItem);
       setEditMode(false);
       toast.success("Item updated successfully");
+      amplitude.track("Item Update", { success: true });
     } catch (error) {
       console.error("Error updating item:", error);
       toast.error("Failed to update item");
+      amplitude.track("Item Update", { success: false });
     }
   };
 

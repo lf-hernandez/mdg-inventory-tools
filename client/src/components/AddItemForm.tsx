@@ -1,5 +1,6 @@
 import { ChangeEvent, useState } from "react";
 import { toast } from "react-hot-toast";
+import * as amplitude from "@amplitude/analytics-browser";
 
 import { ItemService } from "../services/ItemService";
 import type { Item } from "../types";
@@ -53,6 +54,7 @@ export const AddItemForm = () => {
       await ItemService.createItem(item);
       resetForm();
       toast.success("Item added successfully");
+      amplitude.track("Inventory Added");
     } catch (error) {
       setError("An error occurred while adding the item.");
       toast.error("Failed to add item");

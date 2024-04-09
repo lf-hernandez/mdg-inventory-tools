@@ -1,4 +1,5 @@
 import { ReactNode, createContext, useMemo, useState } from "react";
+import * as amplitude from "@amplitude/analytics-browser";
 
 type User = {
   id: string | null;
@@ -42,10 +43,12 @@ export const UserProvider = ({ children }: Props) => {
     localStorage.setItem("userName", name);
     localStorage.setItem("userEmail", email);
     setUser({ id, name, email });
+    amplitude.setUserId(email);
   };
 
   const clearUserDetails = () => {
     setUser(defaultUser);
+    amplitude.reset();
   };
 
   const contextValue = useMemo(

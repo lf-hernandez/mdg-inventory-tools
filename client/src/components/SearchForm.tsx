@@ -1,6 +1,7 @@
 import saveAs from "file-saver";
 import moment from "moment";
 import { useState } from "react";
+import * as amplitude from "@amplitude/analytics-browser";
 
 import { ItemService } from "../services/ItemService";
 import { LoadingSpinner } from "../shared";
@@ -21,6 +22,10 @@ export const SearchForm = () => {
     try {
       const items = await ItemService.searchItems(query);
       setSearchResults(items);
+      amplitude.track("Inventory Search", {
+        term: query,
+        result_count: items.length,
+      });
     } catch (error) {
       console.error("Error:", error);
     } finally {
@@ -32,6 +37,7 @@ export const SearchForm = () => {
     setQuery("");
     setSearchResults(null);
     setIsSearched(false);
+    amplitude.track("Search cleared", { term: query });
   };
 
   const handleItemUpdate = (updatedItem: Item) => {
@@ -45,6 +51,7 @@ export const SearchForm = () => {
 
   const handleExport = async () => {
     try {
+      amplitude.track("Export Search Results");
       const response = await ItemService.exportSearch(query);
       const blob = new Blob([response], { type: "text/csv" });
 

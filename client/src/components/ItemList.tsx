@@ -1,6 +1,7 @@
 import { saveAs } from "file-saver";
 import moment from "moment";
 import { useEffect, useState } from "react";
+import * as amplitude from "@amplitude/analytics-browser";
 
 import { ItemService } from "../services/ItemService";
 import type { Item } from "../types";
@@ -66,6 +67,7 @@ export const ItemList = () => {
       const currentDate = moment().format("MM_DD_YYYY");
 
       saveAs(blob, `mdg_inventory_${currentDate}.csv`);
+      amplitude.track("Inventory Exported");
     } catch (error) {
       console.error(error);
     }
