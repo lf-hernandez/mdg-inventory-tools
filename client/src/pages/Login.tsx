@@ -1,11 +1,11 @@
 import { useState } from "react";
 import { toast } from "react-hot-toast";
 import { Link, useNavigate } from "react-router-dom";
-import * as amplitude from "@amplitude/analytics-browser";
 
 import { useAuth } from "../hooks/useAuth";
 import { useCurrentUser } from "../hooks/useCurrentUser";
 import { AuthService } from "../services/AuthService";
+import { useAnalytics } from "../hooks/useAnalytics";
 
 const LoginComponent = () => {
   const [email, setEmail] = useState("");
@@ -14,6 +14,7 @@ const LoginComponent = () => {
   const navigate = useNavigate();
   const { login } = useAuth();
   const { setUserDetails } = useCurrentUser();
+  const { trackEvent } = useAnalytics();
 
   const handleLogin = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -23,11 +24,11 @@ const LoginComponent = () => {
       setUserDetails(user.id, user.name, user.email);
       toast.success("Logged in successfully.");
       navigate("/");
-      amplitude.track("Login", { success: true });
+      trackEvent("Login", { success: true });
     } catch (error) {
       toast.error("Login failed.");
       console.error("Error:", error);
-      amplitude.track("Login", { success: false });
+      trackEvent("Login", { success: false });
     }
   };
 

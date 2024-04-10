@@ -1,17 +1,18 @@
 import saveAs from "file-saver";
 import { useState } from "react";
-import * as amplitude from "@amplitude/analytics-browser";
 
 import { ItemService } from "../services/ItemService";
 import { LoadingSpinner } from "../shared";
 import type { Item } from "../types";
 import { ItemCard } from "./ItemCard";
+import { useAnalytics } from "../hooks/useAnalytics";
 
 export const SearchForm = () => {
   const [query, setQuery] = useState("");
   const [searchResults, setSearchResults] = useState<Array<Item> | null>(null);
   const [isSearched, setIsSearched] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const { trackEvent } = useAnalytics();
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     setIsLoading(true);
@@ -21,7 +22,7 @@ export const SearchForm = () => {
     try {
       const items = await ItemService.searchItems(query);
       setSearchResults(items);
-      amplitude.track("Inventory Search", {
+      trackEvent("Inventory Search", {
         term: query,
         result_count: items.length,
       });
@@ -36,7 +37,7 @@ export const SearchForm = () => {
     setQuery("");
     setSearchResults(null);
     setIsSearched(false);
-    amplitude.track("Search cleared", { term: query });
+    trackEvent("Search Cleared", { term: query });
   };
 
   const handleItemUpdate = (updatedItem: Item) => {
@@ -50,7 +51,7 @@ export const SearchForm = () => {
 
   const handleExport = async () => {
     try {
-      amplitude.track("Export Search Results");
+      trackEvent("Export Search Results");
       const response = await ItemService.exportSearch(query);
       const blob = new Blob([response], { type: "text/csv" });
 

@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { toast } from "react-hot-toast";
-import * as amplitude from "@amplitude/analytics-browser";
 
 import { ItemService } from "../services/ItemService";
 import type { Item } from "../types";
 import { InputField } from "./InputField";
+import { useAnalytics } from "../hooks/useAnalytics";
 
 type Props = {
   item: Item;
@@ -14,7 +14,7 @@ type Props = {
 export const ItemCard = ({ item, onUpdate }: Props) => {
   const [editMode, setEditMode] = useState(false);
   const [editItem, setEditItem] = useState(item);
-
+  const { trackEvent } = useAnalytics();
   const handleEditChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
 
@@ -39,11 +39,11 @@ export const ItemCard = ({ item, onUpdate }: Props) => {
       onUpdate(updatedItem);
       setEditMode(false);
       toast.success("Item updated successfully");
-      amplitude.track("Item Update", { success: true });
+      trackEvent("Item Update", { success: true });
     } catch (error) {
       console.error("Error updating item:", error);
       toast.error("Failed to update item");
-      amplitude.track("Item Update", { success: false });
+      trackEvent("Item Update", { success: false });
     }
   };
 

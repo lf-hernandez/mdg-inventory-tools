@@ -11,6 +11,7 @@ import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import { ProtectedRoute } from "./router/ProtectedRoute";
 import { PublicRoute } from "./router/PublicRoute";
+import { AnalyticsProvider } from "./contexts/AnalyticsContext";
 
 const router = createBrowserRouter([
   {
@@ -42,8 +43,10 @@ function App() {
   return (
     <AuthProvider>
       <UserProvider>
-        <RouterProvider router={router} />
-        <Toaster />
+        <AnalyticsProvider>
+          <RouterProvider router={router} />
+          <Toaster />
+        </AnalyticsProvider>
       </UserProvider>
     </AuthProvider>
   );

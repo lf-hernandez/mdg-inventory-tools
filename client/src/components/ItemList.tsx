@@ -1,16 +1,17 @@
 import { saveAs } from "file-saver";
 import { useEffect, useState } from "react";
-import * as amplitude from "@amplitude/analytics-browser";
 
 import { ItemService } from "../services/ItemService";
 import type { Item } from "../types";
 import { ItemCard } from "./ItemCard";
 import { PaginationControls } from "./PaginationControls";
+import { useAnalytics } from "../hooks/useAnalytics";
 
 export const ItemList = () => {
   const [items, setItems] = useState<Item[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
+  const { trackEvent } = useAnalytics();
   const totalPages = Math.ceil(totalItems / 10);
 
   const handlePageSelect = (pageNumber: number) => {
@@ -66,7 +67,7 @@ export const ItemList = () => {
       const currentDate = new Date().toLocaleDateString().replace("//g", "-");
 
       saveAs(blob, `mdg_inventory_${currentDate}.csv`);
-      amplitude.track("Inventory Exported");
+      trackEvent("Inventory Exported");
     } catch (error) {
       console.error(error);
     }
