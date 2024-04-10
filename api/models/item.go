@@ -15,6 +15,7 @@ type Item struct {
 	RepairOrderNumber string   `json:"repair_order_number"`
 	Condition         string   `json:"condition"`
 	Location          string   `json:"location"`
+	Notes             string   `json:"notes"`
 
 	CreatedAt  time.Time `json:"created_at"`
 	ModifiedAt time.Time `json:"modified_at"`

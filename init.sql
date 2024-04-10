@@ -22,6 +22,8 @@ CREATE TABLE item (
     status TEXT,
     repair_order_number TEXT,
     condition TEXT,
+    location TEXT,
+    notes TEXT,
     inventory_id UUID REFERENCES inventory(id),
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     modified_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP

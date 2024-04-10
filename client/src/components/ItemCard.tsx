@@ -138,6 +138,13 @@ export const ItemCard = ({ item, onUpdate }: Props) => {
               value={editItem.location}
               onChange={handleEditChange}
             />
+            <InputField
+              multiline
+              label="Notes"
+              name="notes"
+              value={editItem.notes}
+              onChange={handleEditChange}
+            />
           </>
         ) : (
           <>
@@ -151,6 +158,7 @@ export const ItemCard = ({ item, onUpdate }: Props) => {
             <p>Repair Order Number: {item.repairOrderNumber}</p>
             <p>Condition: {item.condition}</p>
             <p>Location: {item.location}</p>
+            {item.notes && <p>Notes: {item.notes}</p>}
           </>
         )}
       </div>

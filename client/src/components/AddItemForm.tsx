@@ -44,6 +44,8 @@ export const AddItemForm = () => {
       category: "",
       price: 0,
       quantity: 0,
+      location: "",
+      notes: "",
     });
   };
 
@@ -136,6 +138,13 @@ export const AddItemForm = () => {
               label="Location"
               name="location"
               value={item.location ?? ""}
+              onChange={handleChange}
+            />
+            <InputField
+              multiline
+              label="Notes"
+              name="notes"
+              value={item.notes ?? ""}
               onChange={handleChange}
             />
           </div>

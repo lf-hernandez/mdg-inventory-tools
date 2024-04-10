@@ -46,7 +46,8 @@ func (repo *ItemRepository) FetchDbItems(page int, limit int) ([]models.Item, er
 				status,
 				repair_order_number,
 				condition,
-				location
+				location,
+				notes
 			FROM item
 			ORDER BY id`
 	} else {
@@ -64,7 +65,8 @@ func (repo *ItemRepository) FetchDbItems(page int, limit int) ([]models.Item, er
 				status,
 				repair_order_number,
 				condition,
-				location
+				location,
+				notes
 			FROM item
 			ORDER BY id
 			LIMIT $1 OFFSET $2`
@@ -90,6 +92,7 @@ func (repo *ItemRepository) FetchDbItems(page int, limit int) ([]models.Item, er
 			repairOrderNumber sql.NullString
 			condition         sql.NullString
 			location          sql.NullString
+			notes             sql.NullString
 		)
 
 		if err := rows.Scan(
@@ -104,7 +107,8 @@ func (repo *ItemRepository) FetchDbItems(page int, limit int) ([]models.Item, er
 			&status,
 			&repairOrderNumber,
 			&condition,
-			&location); err != nil {
+			&location,
+			&notes); err != nil {
 			return nil, fmt.Errorf("error scanning row: %w", err)
 		}
 
@@ -138,6 +142,9 @@ func (repo *ItemRepository) FetchDbItems(page int, limit int) ([]models.Item, er
 		}
 		if location.Valid {
 			item.Location = location.String
+		}
+		if notes.Valid {
+			item.Notes = notes.String
 		}
 
 		items = append(items, item)
@@ -167,7 +174,8 @@ func (repo *ItemRepository) FetchDbItemsWithSearch(searchQuery string) ([]models
 				status,
 				repair_order_number,
 				condition,
-				location
+				location,
+				notes
 			FROM item
 			WHERE part_number = $1
 			OR serial_number = $1
@@ -192,6 +200,7 @@ func (repo *ItemRepository) FetchDbItemsWithSearch(searchQuery string) ([]models
 			repairOrderNumber sql.NullString
 			condition         sql.NullString
 			location          sql.NullString
+			notes             sql.NullString
 		)
 
 		if err := rows.Scan(
@@ -206,7 +215,8 @@ func (repo *ItemRepository) FetchDbItemsWithSearch(searchQuery string) ([]models
 			&status,
 			&repairOrderNumber,
 			&condition,
-			&location); err != nil {
+			&location,
+			&notes); err != nil {
 			return nil, fmt.Errorf("error scanning row: %w", err)
 		}
 
@@ -241,6 +251,9 @@ func (repo *ItemRepository) FetchDbItemsWithSearch(searchQuery string) ([]models
 		if location.Valid {
 			item.Location = location.String
 		}
+		if notes.Valid {
+			item.Notes = notes.String
+		}
 
 		items = append(items, item)
 	}
@@ -265,6 +278,7 @@ func (repo *ItemRepository) FetchDbItem(partNumber string) (models.Item, error) 
 		repairOrderNumber sql.NullString
 		condition         sql.NullString
 		location          sql.NullString
+		notes             sql.NullString
 	)
 	err := repo.DB.
 		QueryRow(`
@@ -280,7 +294,8 @@ func (repo *ItemRepository) FetchDbItem(partNumber string) (models.Item, error) 
 			status,
 			repair_order_number,
 			condition,
-			location
+			location,
+			notes
 		FROM item
 		WHERE part_number = $1`, partNumber).
 		Scan(
@@ -295,7 +310,8 @@ func (repo *ItemRepository) FetchDbItem(partNumber string) (models.Item, error) 
 			&status,
 			&repairOrderNumber,
 			&condition,
-			&location)
+			&location,
+			&notes)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return models.Item{}, fmt.Errorf("no item found with part number %s: %w", partNumber, err)
@@ -334,6 +350,10 @@ func (repo *ItemRepository) FetchDbItem(partNumber string) (models.Item, error) 
 	if location.Valid {
 		item.Location = location.String
 	}
+	if notes.Valid {
+		item.Notes = notes.String
+	}
+
 	return item, nil
 }
 
@@ -353,8 +373,9 @@ func (repo *ItemRepository) UpdateDbItem(item *models.Item) error {
 			status = $7,
 			repair_order_number = $8,
 			condition = $9,
-			location = $10
-		WHERE id = $11`)
+			location = $10,
+			notes = $11
+		WHERE id = $12`)
 	if err != nil {
 		return fmt.Errorf("error preparing SQL statement: %w", err)
 	}
@@ -371,6 +392,7 @@ func (repo *ItemRepository) UpdateDbItem(item *models.Item) error {
 		item.RepairOrderNumber,
 		item.Condition,
 		item.Location,
+		item.Notes,
 		item.ID)
 	if err != nil {
 		return fmt.Errorf("error executing SQL statement: %w", err)
@@ -396,8 +418,9 @@ func (repo *ItemRepository) CreateDbItem(item models.Item) (models.Item, error) 
 			status,
 			repair_order_number,
 			condition,
-			location
-		) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+			location,
+			notes
+		) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
 		RETURNING id
 	`)
 
@@ -419,7 +442,8 @@ func (repo *ItemRepository) CreateDbItem(item models.Item) (models.Item, error) 
 			item.Status,
 			item.RepairOrderNumber,
 			item.Condition,
-			item.Location).
+			item.Location,
+			item.Notes).
 		Scan(&id)
 	if err != nil {
 		return models.Item{}, fmt.Errorf("error executing SQL statement: %w", err)
