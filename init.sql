@@ -1,7 +1,5 @@
--- Ensure the UUID extension is available
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
--- Create the 'inventory' table with metadata columns
 CREATE TABLE inventory (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     name TEXT NOT NULL,
@@ -9,7 +7,6 @@ CREATE TABLE inventory (
     modified_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
--- Create the 'item' table with metadata columns
 CREATE TABLE item (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     part_number TEXT NOT NULL UNIQUE,
@@ -29,21 +26,30 @@ CREATE TABLE item (
     modified_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
--- Create indexes for 'item' table
 CREATE INDEX idx_item_part_number ON item (part_number);
 CREATE INDEX idx_item_purchase_order ON item (purchase_order);
 
--- Create the 'app_user' table with metadata columns
+CREATE TYPE user_role AS ENUM ('Admin', 'Manager', 'Employee');
+
 CREATE TABLE app_user (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     name TEXT NOT NULL,
     email TEXT NOT NULL UNIQUE,
     password TEXT NOT NULL,
+    role TEXT NOT NULL,
+    permissions JSONB,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     modified_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
--- Create a function for updating the 'modified_at' column
+CREATE TABLE inventory_access (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    user_id UUID REFERENCES app_user(id) ON DELETE CASCADE,
+    inventory_id UUID REFERENCES inventory(id) ON DELETE CASCADE,
+    has_access BOOLEAN NOT NULL DEFAULT true,
+   UNIQUE(user_id, inventory_id)
+);
+
 CREATE OR REPLACE FUNCTION update_modified_column()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -52,15 +58,14 @@ BEGIN
 END;
 $$ language 'plpgsql';
 
--- Create triggers for each table to automatically update 'modified_at'
-CREATE TRIGGER update_inventory_modtime
+CREATE TRIGGER update_inventory_mtime
 BEFORE UPDATE ON inventory
 FOR EACH ROW EXECUTE FUNCTION update_modified_column();
 
-CREATE TRIGGER update_item_modtime
+CREATE TRIGGER update_item_mtime
 BEFORE UPDATE ON item
 FOR EACH ROW EXECUTE FUNCTION update_modified_column();
 
-CREATE TRIGGER update_app_user_modtime
+CREATE TRIGGER update_app_user_mtime
 BEFORE UPDATE ON app_user
 FOR EACH ROW EXECUTE FUNCTION update_modified_column();
