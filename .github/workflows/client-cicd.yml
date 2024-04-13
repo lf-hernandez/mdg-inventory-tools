@@ -31,7 +31,7 @@ jobs:
       - name: Build
         run: npm run build
   deploy:
-    if: github.ref == 'refs/heads/main'
+    if: ${{ github.ref == 'refs/heads/main' }}
     needs: build
     runs-on: ubuntu-latest
     steps:
