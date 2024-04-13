@@ -31,13 +31,13 @@ type InventoryAccess struct {
 }
 
 type User struct {
-	ID              string            `json:"id"`
-	Name            string            `json:"name"`
-	Email           string            `json:"email"`
-	Password        string            `json:"password"`
-	Roles           []Role            `json:"roles"`
-	Permissions     Permissions       `json:"permissions"`
-	InventoryAccess []InventoryAccess `json:"inventory_access"`
-	CreatedAt       time.Time         `json:"created_at"`
-	ModifiedAt      time.Time         `json:"modified_at"`
+	ID          string      `json:"id"`
+	Name        string      `json:"name"`
+	Email       string      `json:"email"`
+	Password    string      `json:"password"`
+	Role        Role        `json:"role"`
+	Permissions Permissions `json:"permissions"`
+	Inventories []string    `json:"inventories"`
+	CreatedAt   time.Time   `json:"created_at"`
+	ModifiedAt  time.Time   `json:"modified_at"`
 }

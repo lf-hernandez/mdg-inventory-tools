@@ -38,16 +38,9 @@ CREATE TABLE app_user (
     password TEXT NOT NULL,
     role TEXT NOT NULL,
     permissions JSONB,
+    inventories TEXT[] ,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     modified_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-);
-
-CREATE TABLE inventory_access (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    user_id UUID REFERENCES app_user(id) ON DELETE CASCADE,
-    inventory_id UUID REFERENCES inventory(id) ON DELETE CASCADE,
-    has_access BOOLEAN NOT NULL DEFAULT true,
-   UNIQUE(user_id, inventory_id)
 );
 
 CREATE OR REPLACE FUNCTION update_modified_column()

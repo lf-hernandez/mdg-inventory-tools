@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/lf-hernandez/mdg-inventory-tools/api/models"
+	"github.com/lib/pq"
 )
 
 type UserRepository struct {
@@ -15,13 +16,19 @@ func NewUserRepository(db *sql.DB) *UserRepository {
 	return &UserRepository{DB: db}
 }
 
-func (repo *UserRepository) CreateUser(user models.User) (models.User, error) {
+func (repo *UserRepository) CreateUser(user models.User, inventories []models.Inventory) (models.User, error) {
+	inventoryNames := make([]string, len(inventories))
+	for i, inventory := range inventories {
+		inventoryNames[i] = inventory.Name
+	}
 	stmt, err := repo.DB.Prepare(`
 	INSERT INTO app_user (
 		name,
 		email,
-		password
-	) VALUES ($1, $2, $3)
+		password,
+		role,
+		inventories
+	) VALUES ($1, $2, $3, $4, $5)
 	RETURNING id
 	`)
 
@@ -33,7 +40,7 @@ func (repo *UserRepository) CreateUser(user models.User) (models.User, error) {
 
 	var id string
 
-	err = stmt.QueryRow(user.Name, user.Email, user.Password).Scan(&id)
+	err = stmt.QueryRow(user.Name, user.Email, user.Password, user.Role, pq.Array(inventoryNames)).Scan(&id)
 	if err != nil {
 		return models.User{}, fmt.Errorf("error executing SQL statement: %w", err)
 	}

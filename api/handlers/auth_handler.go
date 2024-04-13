@@ -31,9 +31,18 @@ func (deps *HandlerDependencies) HandleSignup(w http.ResponseWriter, r *http.Req
 	}
 	newUser.Password = string(hashedPassword)
 
-	repo := data.NewUserRepository(deps.DB)
+	userRepo := data.NewUserRepository(deps.DB)
+	inventoryRepo := data.NewInventoryRepository(deps.DB)
 
-	createdUser, err := repo.CreateUser(newUser)
+	inventories, err := inventoryRepo.List()
+	if err != nil {
+		utils.LogError(err)
+		http.Error(w, "error getting inventories", http.StatusInternalServerError)
+		return
+	}
+
+	// TODO: Refactor if secondary signup/create user flow specifies specifies which inventories a user has access to
+	createdUser, err := userRepo.CreateUser(newUser, inventories)
 	if err != nil {
 		utils.LogError(err)
 		http.Error(w, "Error creating user", http.StatusInternalServerError)
