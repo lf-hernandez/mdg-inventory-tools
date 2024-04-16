@@ -17,7 +17,6 @@ export const ItemList = () => {
   const { trackEvent } = useAnalytics();
 
   const totalPages = Math.ceil(totalItems / 10);
-  const sectionTitle = document.querySelector("#itemsListSection");
 
   const handlePageSelect = (pageNumber: number) => {
     setCurrentPage(pageNumber);
@@ -55,26 +54,27 @@ export const ItemList = () => {
     }
   };
 
-  const fetchItems = async () => {
-    setIsLoading(true);
-    try {
-      const response = await ItemService.getItems(currentPage);
-      if (response && response.items) {
-        setItems(response.items);
-        setTotalItems(response.totalCount);
-      } else {
-        console.error("Invalid response:", response);
-      }
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   useEffect(() => {
+    const fetchItems = async () => {
+      setIsLoading(true);
+      try {
+        const response = await ItemService.getItems(currentPage);
+        if (response && response.items) {
+          setItems(response.items);
+          setTotalItems(response.totalCount);
+        } else {
+          console.error("Invalid response:", response);
+        }
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
     fetchItems();
 
+    const sectionTitle = document.querySelector("#itemsListSection");
     if (sectionTitle) {
       sectionTitle.scrollIntoView({ behavior: "smooth" });
     }
