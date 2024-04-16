@@ -1,6 +1,6 @@
 # MDG Inventory Tools
 
-[![Server CI](https://github.com/lf-hernandez/mdg-inventory-tools/actions/workflows/go.yml/badge.svg)](https://github.com/lf-hernandez/mdg-inventory-tools/actions/workflows/go.yml) [![Client CI](https://github.com/lf-hernandez/mdg-inventory-tools/actions/workflows/react.yml/badge.svg)](https://github.com/lf-hernandez/mdg-inventory-tools/actions/workflows/react.yml)
+[![API-CI/CD](https://github.com/rwx-solutions/mdg-inventory-manager/actions/workflows/api-cicd.yml/badge.svg)](https://github.com/rwx-solutions/mdg-inventory-manager/actions/workflows/api-cicd.yml) [![Client-CI/CD](https://github.com/rwx-solutions/mdg-inventory-manager/actions/workflows/client-cicd.yml/badge.svg)](https://github.com/rwx-solutions/mdg-inventory-manager/actions/workflows/client-cicd.yml)
 ## Docker Compose Development Setup
 
 ### Prerequisites
