@@ -41,7 +41,7 @@ func (deps *HandlerDependencies) HandleSignup(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	// TODO: Refactor if secondary signup/create user flow specifies specifies which inventories a user has access to
+	// TODO: Refactor if secondary signup/create user flow specifies which inventories a user has access to
 	createdUser, err := userRepo.CreateUser(newUser, inventories)
 	if err != nil {
 		utils.LogError(err)
