@@ -6,13 +6,18 @@ import type { Item } from "../types";
 import { ItemCard } from "./ItemCard";
 import { PaginationControls } from "./PaginationControls";
 import { useAnalytics } from "../hooks/useAnalytics";
+import { LoadingSpinner } from "../shared";
 
 export const ItemList = () => {
   const [items, setItems] = useState<Item[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
+
   const { trackEvent } = useAnalytics();
+
   const totalPages = Math.ceil(totalItems / 10);
+  const sectionTitle = document.querySelector("#itemsListSection");
 
   const handlePageSelect = (pageNumber: number) => {
     setCurrentPage(pageNumber);
@@ -36,29 +41,6 @@ export const ItemList = () => {
     );
   };
 
-  useEffect(() => {
-    const fetchItems = async () => {
-      try {
-        const response = await ItemService.getItems(currentPage);
-        if (response && response.items) {
-          setItems(response.items);
-          setTotalItems(response.totalCount);
-        } else {
-          console.error("Invalid response:", response);
-        }
-      } catch (error) {
-        console.error(error);
-      }
-    };
-
-    fetchItems();
-
-    const sectionTitle = document.querySelector("#itemsListSection");
-    if (sectionTitle) {
-      sectionTitle.scrollIntoView({ behavior: "smooth" });
-    }
-  }, [currentPage]);
-
   const handleExport = async () => {
     try {
       const response = await ItemService.exportInventory();
@@ -73,6 +55,31 @@ export const ItemList = () => {
     }
   };
 
+  const fetchItems = async () => {
+    setIsLoading(true);
+    try {
+      const response = await ItemService.getItems(currentPage);
+      if (response && response.items) {
+        setItems(response.items);
+        setTotalItems(response.totalCount);
+      } else {
+        console.error("Invalid response:", response);
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchItems();
+
+    if (sectionTitle) {
+      sectionTitle.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [currentPage]);
+
   return (
     <section id="itemsListSection">
       <div className="flex justify-between items-center">
@@ -86,6 +93,7 @@ export const ItemList = () => {
           </button>
         )}
       </div>
+      {isLoading && <LoadingSpinner />}
       {items && items.length > 0 && (
         <>
           <div id="itemsList">
