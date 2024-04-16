@@ -49,7 +49,7 @@ func (deps *HandlerDependencies) HandleSignup(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	tokenString, err := auth.CreateToken(createdUser.ID, deps.JwtSecret)
+	tokenString, err := auth.CreateToken(createdUser.ID, createdUser.Role, deps.JwtSecret)
 	if err != nil {
 		utils.LogError(fmt.Errorf("signup error: error creating token for user ID %s: %w", createdUser.ID, err))
 		http.Error(w, "Error creating user token", http.StatusInternalServerError)
@@ -101,7 +101,7 @@ func (deps *HandlerDependencies) HandleLogin(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	tokenString, err := auth.CreateToken(user.ID, deps.JwtSecret)
+	tokenString, err := auth.CreateToken(user.ID, user.Role, deps.JwtSecret)
 
 	if err != nil {
 		utils.LogError(fmt.Errorf("login error: error creating token for user ID %s: %w", user.ID, err))
@@ -117,6 +117,7 @@ func (deps *HandlerDependencies) HandleLogin(w http.ResponseWriter, r *http.Requ
 			ID:    user.ID,
 			Name:  user.Name,
 			Email: user.Email,
+			Role:  user.Role,
 		},
 	}
 
@@ -142,7 +143,7 @@ func (deps *HandlerDependencies) HandleUpdatePassword(w http.ResponseWriter, r *
 		return
 	}
 
-	userID, err := auth.AuthenticateUser(r, deps.JwtSecret)
+	userID, _, err := auth.AuthenticateUser(r, deps.JwtSecret)
 	if err != nil {
 		http.Error(w, "Unauthorized - token invalid", http.StatusUnauthorized)
 		return

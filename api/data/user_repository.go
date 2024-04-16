@@ -53,9 +53,9 @@ func (repo *UserRepository) FetchUserByEmail(email string) (models.User, error) 
 	var user models.User
 
 	err := repo.DB.QueryRow(
-		"SELECT id, name, email, password FROM app_user WHERE email = $1",
+		"SELECT id, name, email, password, role FROM app_user WHERE email = $1",
 		email,
-	).Scan(&user.ID, &user.Name, &user.Email, &user.Password)
+	).Scan(&user.ID, &user.Name, &user.Email, &user.Password, &user.Role)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return models.User{}, fmt.Errorf("no user found with email %s: %w", email, err)

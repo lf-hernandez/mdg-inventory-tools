@@ -2,6 +2,7 @@ package utils
 
 import (
 	"fmt"
+	"regexp"
 	"strings"
 )
 
@@ -12,4 +13,13 @@ func ExtractPathParam(path string, routePrefix string) (string, error) {
 	}
 
 	return param, nil
+}
+
+func ExtractResourceFromURL(path string) (string, error) {
+	re := regexp.MustCompile(`^/api/([^/]+)`)
+	match := re.FindStringSubmatch(path)
+	if len(match) >= 2 {
+		return match[1], nil
+	}
+	return "", fmt.Errorf("Resource not found.")
 }
