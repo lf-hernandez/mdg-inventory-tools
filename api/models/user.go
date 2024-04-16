@@ -6,7 +6,7 @@ type Role string
 
 const (
 	Admin    Role = "Admin"
-	Manager  Role = "Manager"
+	Auditor  Role = "Auditor"
 	Employee Role = "Employee"
 )
 
