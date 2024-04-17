@@ -11,12 +11,14 @@ import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import { ProtectedRoute } from "./router/ProtectedRoute";
 import { AnalyticsProvider } from "./contexts/AnalyticsContext";
+import Error from "./pages/Error";
 
 const router = createBrowserRouter([
   {
     id: "root",
     path: "/",
     element: <Layout />,
+    errorElement: <Error />,
     children: [
       {
         index: true,
