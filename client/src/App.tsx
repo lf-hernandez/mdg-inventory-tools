@@ -10,7 +10,6 @@ import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import { ProtectedRoute } from "./router/ProtectedRoute";
-import { PublicRoute } from "./router/PublicRoute";
 import { AnalyticsProvider } from "./contexts/AnalyticsContext";
 
 const router = createBrowserRouter([
@@ -29,11 +28,11 @@ const router = createBrowserRouter([
       },
       {
         path: "login",
-        element: <PublicRoute component={Login} />,
+        element: <Login />,
       },
       {
         path: "signup",
-        element: <PublicRoute component={Signup} />,
+        element: <Signup />,
       },
     ],
   },
