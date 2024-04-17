@@ -5,11 +5,17 @@ type User = {
   id: string | null;
   name: string | null;
   email: string | null;
+  role: string | null;
 };
 
 type UserContextType = {
   user: User;
-  setUserDetails: (id: string, name: string, email: string) => void;
+  setUserDetails: (
+    id: string,
+    name: string,
+    email: string,
+    role: string,
+  ) => void;
   clearUserDetails: () => void;
 };
 
@@ -17,6 +23,7 @@ const defaultUser: User = {
   id: null,
   name: null,
   email: null,
+  role: null,
 };
 
 const defaultUserContext: UserContextType = {
@@ -36,13 +43,20 @@ export const UserProvider = ({ children }: Props) => {
     id: localStorage.getItem("userId"),
     name: localStorage.getItem("userName"),
     email: localStorage.getItem("userEmail"),
+    role: localStorage.getItem("userRole"),
   });
 
-  const setUserDetails = (id: string, name: string, email: string) => {
+  const setUserDetails = (
+    id: string,
+    name: string,
+    email: string,
+    role: string,
+  ) => {
     localStorage.setItem("userId", id);
     localStorage.setItem("userName", name);
     localStorage.setItem("userEmail", email);
-    setUser({ id, name, email });
+    localStorage.setItem("userRole", role);
+    setUser({ id, name, email, role });
     amplitude.setUserId(email);
   };
 

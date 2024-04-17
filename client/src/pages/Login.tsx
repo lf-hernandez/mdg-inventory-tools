@@ -20,13 +20,13 @@ const LoginComponent = () => {
     event.preventDefault();
     try {
       const { token, user } = await AuthService.login(email, password);
-      setUserDetails(user.id, user.name, user.email);
-      toast.success("Logged in successfully.");
       onLogin(token);
+      setUserDetails(user.id, user.name, user.email, user.role);
+      toast.success("Login success");
       navigate("/");
       trackEvent("Login", { success: true });
     } catch (error) {
-      toast.error("Login failed.");
+      toast.error("Login error");
       console.error("Error:", error);
       trackEvent("Login", { success: false });
     }

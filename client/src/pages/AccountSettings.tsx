@@ -51,6 +51,9 @@ const AccountSettings = () => {
           <div>
             <strong>Email:</strong> {user.email}
           </div>
+          <div>
+            <strong>Role:</strong> {user.role}
+          </div>
         </div>
         <form onSubmit={handlePasswordUpdate}>
           <h3 className="text-xl font-semibold mb-2">Update Password</h3>

@@ -18,8 +18,8 @@ const Signup = () => {
     event.preventDefault();
     try {
       const { token, user } = await AuthService.signup(name, email, password);
-      setUserDetails(user.id, user.name, user.email);
       onLogin(token);
+      setUserDetails(user.id, user.name, user.email, user.role);
       toast.success("Signed up successfully.");
       navigate("/");
     } catch (error) {
