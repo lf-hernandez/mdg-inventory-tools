@@ -12,7 +12,7 @@ const LoginComponent = () => {
   const [password, setPassword] = useState("");
 
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { onLogin } = useAuth();
   const { setUserDetails } = useCurrentUser();
   const { trackEvent } = useAnalytics();
 
@@ -20,9 +20,9 @@ const LoginComponent = () => {
     event.preventDefault();
     try {
       const { token, user } = await AuthService.login(email, password);
-      login(token);
       setUserDetails(user.id, user.name, user.email);
       toast.success("Logged in successfully.");
+      onLogin(token);
       navigate("/");
       trackEvent("Login", { success: true });
     } catch (error) {

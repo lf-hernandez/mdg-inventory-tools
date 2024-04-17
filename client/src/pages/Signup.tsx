@@ -11,15 +11,15 @@ const Signup = () => {
   const [password, setPassword] = useState("");
 
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { onLogin } = useAuth();
   const { setUserDetails } = useCurrentUser();
 
   const handleSignup = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     try {
       const { token, user } = await AuthService.signup(name, email, password);
-      login(token);
       setUserDetails(user.id, user.name, user.email);
+      onLogin(token);
       toast.success("Signed up successfully.");
       navigate("/");
     } catch (error) {

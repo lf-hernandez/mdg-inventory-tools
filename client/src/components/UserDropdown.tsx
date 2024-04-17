@@ -8,14 +8,14 @@ import { UserAvatar } from "./UserAvatar";
 export const UserDropdown = () => {
   const { user, clearUserDetails } = useCurrentUser();
   const navigate = useNavigate();
-  const { logout } = useAuth();
+  const { onLogout } = useAuth();
   const [isDropdownVisible, setDropdownVisible] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const userAvatarRef = useRef<HTMLButtonElement | null>(null);
 
   const handleLogout = () => {
     toggleDropdown();
-    logout();
+    onLogout();
     clearUserDetails();
     toast.success("Logged out successfully.");
     navigate("/login");
@@ -33,7 +33,7 @@ export const UserDropdown = () => {
   useEffect(() => {
     if (!user || !user.name) {
       toast.error("Invalid session. Please login again.");
-      logout();
+      onLogout();
       clearUserDetails();
       navigate("/login");
     }

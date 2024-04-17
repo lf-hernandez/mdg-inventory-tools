@@ -2,14 +2,14 @@ import { ReactNode, createContext, useMemo, useState } from "react";
 
 type AuthContextType = {
   token: string | null;
-  login: (newToken: string) => void;
-  logout: () => void;
+  onLogin: (newToken: string) => void;
+  onLogout: () => void;
 };
 
 const defaultAuthContext: AuthContextType = {
   token: null,
-  login: () => {},
-  logout: () => {},
+  onLogin: () => {},
+  onLogout: () => {},
 };
 
 export const AuthContext = createContext<AuthContextType>(defaultAuthContext);
@@ -23,17 +23,17 @@ export const AuthProvider = ({ children }: Props) => {
     localStorage.getItem("token"),
   );
 
-  const login = (newToken: string) => {
+  const onLogin = (newToken: string) => {
     localStorage.setItem("token", newToken);
     setToken(newToken);
   };
 
-  const logout = () => {
+  const onLogout = () => {
     localStorage.clear();
     setToken(null);
   };
 
-  const contextValue = useMemo(() => ({ token, login, logout }), [token]);
+  const contextValue = useMemo(() => ({ token, onLogin, onLogout }), [token]);
 
   return (
     <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>
