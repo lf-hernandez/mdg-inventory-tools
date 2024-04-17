@@ -27,7 +27,7 @@ export async function fetchJson({
   });
 
   if (!response.ok) {
-    if (response.status === 401) {
+    if (response.status === 401 && window.location.pathname !== "/login") {
       localStorage.removeItem("token");
       window.location.href = "/login";
       return Promise.reject(new Error("Session expired. Please login again."));
