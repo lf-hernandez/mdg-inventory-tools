@@ -22,7 +22,7 @@ const LoginComponent = () => {
       const { token, user } = await AuthService.login(email, password);
       onLogin(token);
       setUserDetails(user.id, user.name, user.email, user.role);
-      toast.success("Login success");
+      toast.success("Logged in successfully");
       navigate("/");
       trackEvent("Login", { success: true });
     } catch (error) {
