@@ -8,6 +8,7 @@ type Props = {
   onChange: (e: ChangeEvent<HTMLInputElement & HTMLTextAreaElement>) => void;
   required?: boolean;
   multiline?: boolean;
+  disabled?: boolean;
 };
 
 export const InputField = ({
@@ -18,6 +19,7 @@ export const InputField = ({
   onChange,
   required = false,
   multiline = false,
+  disabled = false,
 }: Props) => (
   <div>
     <label
@@ -28,6 +30,7 @@ export const InputField = ({
     </label>
     {multiline ? (
       <textarea
+        disabled={disabled}
         rows={5}
         name={name}
         id={name}
@@ -38,6 +41,7 @@ export const InputField = ({
       />
     ) : (
       <input
+        disabled={disabled}
         type={type}
         name={name}
         id={name}
