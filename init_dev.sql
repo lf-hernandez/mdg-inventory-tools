@@ -25,7 +25,6 @@ CREATE TABLE item (
 );
 CREATE INDEX idx_item_part_number ON item (part_number);
 CREATE INDEX idx_item_purchase_order ON item (purchase_order);
-CREATE TYPE user_role AS ENUM ('Admin', 'Manager', 'Employee');
 CREATE TABLE app_user (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     name TEXT NOT NULL,
