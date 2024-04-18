@@ -59,9 +59,14 @@ func AuthenticateUser(r *http.Request, jwtSecret string) (string, models.Role, e
 		return "", "", fmt.Errorf("user_id not found in token")
 	}
 
-	role, ok := claims["role"].(models.Role)
+	roleFromClaim, ok := claims["role"].(string)
 	if !ok {
 		return "", "", fmt.Errorf("role not found in token")
+	}
+
+	role := models.Role(roleFromClaim)
+	if !models.IsValidRole(role) {
+		return "", "", fmt.Errorf("bad role")
 	}
 
 	return userID, role, nil

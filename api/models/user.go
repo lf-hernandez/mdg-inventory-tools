@@ -17,10 +17,20 @@ type User struct {
 type Role string
 
 const (
-	Admin      Role = "Admin"
-	Sales      Role = "Sales"
-	Accounting Role = "Accounting"
+	Admin          Role = "Admin"
+	Sales          Role = "Sales"
+	Accounting     Role = "Accounting"
+	MTAeroEmployee Role = "MTAero Employee"
 )
+
+func IsValidRole(role Role) bool {
+	switch role {
+	case Admin, Sales, Accounting, MTAeroEmployee:
+		return true
+	default:
+		return false
+	}
+}
 
 type PermissionSet map[string]bool
 
@@ -32,19 +42,22 @@ type Permissions struct {
 
 var RoleResourcePermissions = map[Role]map[string]PermissionSet{
 	Admin: {
-		"item": {
+		"account": {
+			"update": true,
+		},
+		"items": {
 			"create": true,
 			"read":   true,
 			"update": true,
 			"delete": true,
 		},
-		"inventory": {
+		"inventories": {
 			"create": true,
 			"read":   true,
 			"update": true,
 			"delete": true,
 		},
-		"user": {
+		"users": {
 			"create": true,
 			"read":   true,
 			"update": true,
@@ -52,18 +65,32 @@ var RoleResourcePermissions = map[Role]map[string]PermissionSet{
 		},
 	},
 	Sales: {
+		"account": {
+			"update": true,
+		},
 		"items": {
 			"read": true,
 		},
-		"inventory": {
+		"inventories": {
 			"read": true,
 		},
 	},
 	Accounting: {
+		"account": {
+			"update": true,
+		},
 		"items": {
 			"create": true,
 			"read":   true,
 			"update": true,
+		},
+	},
+	MTAeroEmployee: {
+		"account": {
+			"update": true,
+		},
+		"items": {
+			"read": true,
 		},
 	},
 }

@@ -10,7 +10,7 @@ const getItemCacheKey = (page: number) => `page_${page}`;
 export const ItemService = {
   async exportInventory(): Promise<string> {
     return fetchText({
-      url: `${BASE_URL}/csv`,
+      url: `${BASE_URL}/export`,
     });
   },
   async exportSearch(query: string): Promise<string> {

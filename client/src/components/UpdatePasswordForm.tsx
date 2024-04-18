@@ -18,6 +18,12 @@ export const UpdatePasswordForm = ({ onSubmit, onBack }: Props) => {
   const [newPassword, setNewPassword] = useState("");
   const [confirmedNewPassword, setConfirmedNewPassword] = useState("");
 
+  const isSubmitDisabled =
+    !currentPassword ||
+    !newPassword ||
+    !confirmedNewPassword ||
+    newPassword !== confirmedNewPassword;
+
   const resetFields = () => {
     setCurrentPassword("");
     setNewPassword("");
@@ -64,8 +70,12 @@ export const UpdatePasswordForm = ({ onSubmit, onBack }: Props) => {
         />
         <button
           type="submit"
-          className="w-full p-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-          disabled={!currentPassword || !newPassword || !confirmedNewPassword}
+          className={`w-full p-2 rounded ${
+            isSubmitDisabled
+              ? "bg-gray-300 text-gray-600 cursor-not-allowed"
+              : "bg-blue-500 text-white hover:bg-blue-600 "
+          }`}
+          disabled={isSubmitDisabled}
         >
           Update Password
         </button>

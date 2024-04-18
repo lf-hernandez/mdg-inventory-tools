@@ -9,7 +9,7 @@ export const AuthService = {
     password: string,
   ): Promise<{ token: string; user: ApiUser }> {
     const data = await fetchJson({
-      url: `${BASE_URL}/login`,
+      url: `${BASE_URL}/auth/login`,
       options: {
         method: "POST",
         body: JSON.stringify({ email, password }),
@@ -18,32 +18,30 @@ export const AuthService = {
     });
     return data;
   },
-
   async signup(
     name: string,
     email: string,
     password: string,
   ): Promise<{ token: string; user: ApiUser }> {
     const data = await fetchJson({
-      url: `${BASE_URL}/signup`,
+      url: `${BASE_URL}/auth/signup`,
       options: {
         method: "POST",
         body: JSON.stringify({ name, email, password }),
       },
       includeAuth: false,
     });
-
     return data;
   },
-
+  // TODO: Break this out into a proper service
   async updatePassword(
     currentPassword: string,
     newPassword: string,
   ): Promise<{ message: string }> {
     const data = await fetchJson({
-      url: `${BASE_URL}/update-password`,
+      url: `${BASE_URL}/account/update-password`,
       options: {
-        method: "POST",
+        method: "PUT",
         body: JSON.stringify({ currentPassword, newPassword }),
         headers: {
           "Content-Type": "application/json",
