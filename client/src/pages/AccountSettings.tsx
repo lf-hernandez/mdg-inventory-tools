@@ -57,7 +57,7 @@ const AccountSettings = () => {
             }}
           />
         ) : (
-          <div className="mb-4">
+          <div>
             <h2 className="text-2xl font-semibold">Account Settings</h2>
             <div className="my-4">
               <InputField
@@ -88,7 +88,7 @@ const AccountSettings = () => {
             </div>
             <hr />
             <button
-              className="flex justify-between my-4 w-full"
+              className="flex justify-between mt-4 w-full"
               onClick={() => {
                 setShowUpdatePasswordForm(true);
               }}
