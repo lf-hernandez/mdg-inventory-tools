@@ -17,9 +17,9 @@ type User struct {
 type Role string
 
 const (
-	Admin    Role = "Admin"
-	Auditor  Role = "Auditor"
-	Employee Role = "Employee"
+	Admin      Role = "Admin"
+	Sales      Role = "Sales"
+	Accounting Role = "Accounting"
 )
 
 type PermissionSet map[string]bool
@@ -32,7 +32,7 @@ type Permissions struct {
 
 var RoleResourcePermissions = map[Role]map[string]PermissionSet{
 	Admin: {
-		"items": {
+		"item": {
 			"create": true,
 			"read":   true,
 			"update": true,
@@ -44,14 +44,14 @@ var RoleResourcePermissions = map[Role]map[string]PermissionSet{
 			"update": true,
 			"delete": true,
 		},
-		"auditor": {
+		"user": {
 			"create": true,
 			"read":   true,
 			"update": true,
 			"delete": true,
 		},
 	},
-	Auditor: {
+	Sales: {
 		"items": {
 			"read": true,
 		},
@@ -59,7 +59,7 @@ var RoleResourcePermissions = map[Role]map[string]PermissionSet{
 			"read": true,
 		},
 	},
-	Employee: {
+	Accounting: {
 		"items": {
 			"create": true,
 			"read":   true,
