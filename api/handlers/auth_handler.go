@@ -37,7 +37,7 @@ func (deps *HandlerDependencies) HandleSignup(w http.ResponseWriter, r *http.Req
 	inventories, err := inventoryRepo.List()
 	if err != nil {
 		utils.LogError(err)
-		http.Error(w, "error getting inventories", http.StatusInternalServerError)
+		http.Error(w, "Error getting inventories", http.StatusInternalServerError)
 		return
 	}
 
@@ -65,8 +65,12 @@ func (deps *HandlerDependencies) HandleSignup(w http.ResponseWriter, r *http.Req
 		},
 	}
 
-	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(signupResponse)
+	err = utils.WriteJSONResponse(w, http.StatusCreated, signupResponse, nil)
+	if err != nil {
+		utils.LogError(fmt.Errorf("signup error: error encoding signup response: %w", err))
+		http.Error(w, "Error signing up", http.StatusInternalServerError)
+		return
+	}
 }
 
 func (deps *HandlerDependencies) HandleLogin(w http.ResponseWriter, r *http.Request) {
@@ -109,8 +113,6 @@ func (deps *HandlerDependencies) HandleLogin(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-
 	response := LoginResponse{
 		Token: tokenString,
 		User: UserResponse{
@@ -121,7 +123,7 @@ func (deps *HandlerDependencies) HandleLogin(w http.ResponseWriter, r *http.Requ
 		},
 	}
 
-	err = json.NewEncoder(w).Encode(response)
+	err = utils.WriteJSONResponse(w, http.StatusOK, response, nil)
 	if err != nil {
 		utils.LogError(fmt.Errorf("login error: error encoding login response: %w", err))
 		http.Error(w, "Error logging in", http.StatusInternalServerError)
@@ -132,8 +134,6 @@ func (deps *HandlerDependencies) HandleLogin(w http.ResponseWriter, r *http.Requ
 }
 
 func (deps *HandlerDependencies) HandleUpdatePassword(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-
 	repo := data.NewUserRepository(deps.DB)
 
 	var passwordResetReq PasswordResetRequest
@@ -175,6 +175,10 @@ func (deps *HandlerDependencies) HandleUpdatePassword(w http.ResponseWriter, r *
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(map[string]string{"message": "Password updated successfully"})
+	err = utils.WriteJSONResponse(w, http.StatusOK, map[string]string{"message": "Password updated successfully"}, nil)
+	if err != nil {
+		utils.LogError(fmt.Errorf("account update error: error encoding update password response: %w", err))
+		http.Error(w, "Error updating password", http.StatusInternalServerError)
+		return
+	}
 }
