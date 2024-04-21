@@ -20,14 +20,12 @@ func (deps *HandlerDependencies) HandleSignup(w http.ResponseWriter, r *http.Req
 	err := json.NewDecoder(r.Body).Decode(&newUser)
 	if err != nil {
 		http.Error(w, "Invalid request body", http.StatusBadRequest)
-		return
 	}
 
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(newUser.Password), bcrypt.DefaultCost)
 	if err != nil {
 		utils.LogError(err)
 		http.Error(w, "Error creating user", http.StatusInternalServerError)
-		return
 	}
 	newUser.Password = string(hashedPassword)
 
@@ -38,7 +36,6 @@ func (deps *HandlerDependencies) HandleSignup(w http.ResponseWriter, r *http.Req
 	if err != nil {
 		utils.LogError(err)
 		http.Error(w, "Error getting inventories", http.StatusInternalServerError)
-		return
 	}
 
 	// TODO: Refactor if signup/create user flow is enhanced and specifies which inventories a user has access to
@@ -46,14 +43,12 @@ func (deps *HandlerDependencies) HandleSignup(w http.ResponseWriter, r *http.Req
 	if err != nil {
 		utils.LogError(err)
 		http.Error(w, "Error creating user", http.StatusInternalServerError)
-		return
 	}
 
 	tokenString, err := auth.CreateToken(createdUser.ID, createdUser.Role, deps.JwtSecret)
 	if err != nil {
 		utils.LogError(fmt.Errorf("signup error: error creating token for user ID %s: %w", createdUser.ID, err))
 		http.Error(w, "Error creating user token", http.StatusInternalServerError)
-		return
 	}
 
 	signupResponse := SignupResponse{
@@ -69,7 +64,6 @@ func (deps *HandlerDependencies) HandleSignup(w http.ResponseWriter, r *http.Req
 	if err != nil {
 		utils.LogError(fmt.Errorf("signup error: error encoding signup response: %w", err))
 		http.Error(w, "Error signing up", http.StatusInternalServerError)
-		return
 	}
 }
 
@@ -79,7 +73,6 @@ func (deps *HandlerDependencies) HandleLogin(w http.ResponseWriter, r *http.Requ
 	if err != nil {
 		utils.LogError(fmt.Errorf("login error: invalid request body: %w", err))
 		http.Error(w, "Invalid request body", http.StatusBadRequest)
-		return
 	}
 
 	utils.LogInfo(fmt.Sprintf("Attempting login for email: %s", loginUser.Email))
@@ -95,14 +88,12 @@ func (deps *HandlerDependencies) HandleLogin(w http.ResponseWriter, r *http.Requ
 			utils.LogError(fmt.Errorf("login error: error fetching user by email: %w", err))
 			http.Error(w, "Error logging in", http.StatusInternalServerError)
 		}
-		return
 	}
 
 	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(loginUser.Password))
 	if err != nil {
 		utils.LogError(fmt.Errorf("login error: password mismatch for email %s: %w", loginUser.Email, err))
 		http.Error(w, "Invalid credentials", http.StatusUnauthorized)
-		return
 	}
 
 	tokenString, err := auth.CreateToken(user.ID, user.Role, deps.JwtSecret)
@@ -110,7 +101,6 @@ func (deps *HandlerDependencies) HandleLogin(w http.ResponseWriter, r *http.Requ
 	if err != nil {
 		utils.LogError(fmt.Errorf("login error: error creating token for user ID %s: %w", user.ID, err))
 		http.Error(w, "Error logging in", http.StatusInternalServerError)
-		return
 	}
 
 	response := LoginResponse{
@@ -127,7 +117,6 @@ func (deps *HandlerDependencies) HandleLogin(w http.ResponseWriter, r *http.Requ
 	if err != nil {
 		utils.LogError(fmt.Errorf("login error: error encoding login response: %w", err))
 		http.Error(w, "Error logging in", http.StatusInternalServerError)
-		return
 	}
 
 	utils.LogInfo(fmt.Sprintf("User logged in: %s", user.Email))
@@ -140,45 +129,38 @@ func (deps *HandlerDependencies) HandleUpdatePassword(w http.ResponseWriter, r *
 	err := json.NewDecoder(r.Body).Decode(&passwordResetReq)
 	if err != nil {
 		http.Error(w, "Invalid request body", http.StatusBadRequest)
-		return
 	}
 
 	userID, _, err := auth.AuthenticateUser(r, deps.JwtSecret)
 	if err != nil {
 		http.Error(w, "Unauthorized - token invalid", http.StatusUnauthorized)
-		return
 	}
 
 	user, err := repo.FetchUserByID(userID)
 	if err != nil {
 		http.Error(w, "User not found", http.StatusNotFound)
-		return
 	}
 
 	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(passwordResetReq.CurrentPassword))
 	if err != nil {
 		http.Error(w, "Invalid current password", http.StatusUnauthorized)
-		return
 	}
 
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(passwordResetReq.NewPassword), bcrypt.DefaultCost)
 	if err != nil {
 		utils.LogError(err)
 		http.Error(w, "Error updating password", http.StatusInternalServerError)
-		return
 	}
 
 	err = repo.UpdatePassword(user.ID, string(hashedPassword))
 	if err != nil {
 		utils.LogError(err)
 		http.Error(w, "Error updating password", http.StatusInternalServerError)
-		return
 	}
 
 	err = utils.WriteJSONResponse(w, http.StatusOK, map[string]string{"message": "Password updated successfully"}, nil)
 	if err != nil {
 		utils.LogError(fmt.Errorf("account update error: error encoding update password response: %w", err))
 		http.Error(w, "Error updating password", http.StatusInternalServerError)
-		return
 	}
 }
