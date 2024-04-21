@@ -51,7 +51,7 @@ func (deps *HandlerDependencies) HandleSignup(w http.ResponseWriter, r *http.Req
 		http.Error(w, "Error creating user token", http.StatusInternalServerError)
 	}
 
-	signupResponse := SignupResponse{
+	response := SignupResponse{
 		Token: tokenString,
 		User: UserResponse{
 			ID:    createdUser.ID,
@@ -60,7 +60,7 @@ func (deps *HandlerDependencies) HandleSignup(w http.ResponseWriter, r *http.Req
 		},
 	}
 
-	err = utils.WriteJSONResponse(w, http.StatusCreated, signupResponse, nil)
+	err = utils.WriteJSONResponse(w, http.StatusCreated, response, nil)
 	if err != nil {
 		utils.LogError(fmt.Errorf("signup error: error encoding signup response: %w", err))
 		http.Error(w, "Error signing up", http.StatusInternalServerError)
@@ -158,7 +158,9 @@ func (deps *HandlerDependencies) HandleUpdatePassword(w http.ResponseWriter, r *
 		http.Error(w, "Error updating password", http.StatusInternalServerError)
 	}
 
-	err = utils.WriteJSONResponse(w, http.StatusOK, map[string]string{"message": "Password updated successfully"}, nil)
+	response := map[string]string{"message": "Password updated successfully"}
+
+	err = utils.WriteJSONResponse(w, http.StatusOK, response, nil)
 	if err != nil {
 		utils.LogError(fmt.Errorf("account update error: error encoding update password response: %w", err))
 		http.Error(w, "Error updating password", http.StatusInternalServerError)
