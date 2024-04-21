@@ -4,11 +4,11 @@ import (
 	"bytes"
 	"encoding/csv"
 	"net/http"
-	"strconv"
 	"time"
 
 	"github.com/lf-hernandez/mdg-inventory-tools/api/data"
 	"github.com/lf-hernandez/mdg-inventory-tools/api/models"
+	"github.com/lf-hernandez/mdg-inventory-tools/api/utils"
 )
 
 func (deps *HandlerDependencies) HandleExportCSV(w http.ResponseWriter, r *http.Request) {
@@ -56,8 +56,8 @@ func (deps *HandlerDependencies) HandleExportCSV(w http.ResponseWriter, r *http.
 			item.PurchaseOrder,
 			item.Description,
 			item.Category,
-			formatFloat(item.Price),
-			formatInt(item.Quantity),
+			utils.FormatFloat(item.Price),
+			utils.FormatInt(item.Quantity),
 			item.Status,
 			item.RepairOrderNumber,
 			item.Condition,
@@ -75,18 +75,4 @@ func (deps *HandlerDependencies) HandleExportCSV(w http.ResponseWriter, r *http.
 		http.Error(w, "Error writing response: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
-}
-
-func formatFloat(value *float64) string {
-	if value != nil {
-		return strconv.FormatFloat(*value, 'f', 2, 64)
-	}
-	return ""
-}
-
-func formatInt(value *int) string {
-	if value != nil {
-		return strconv.Itoa(*value)
-	}
-	return ""
 }
