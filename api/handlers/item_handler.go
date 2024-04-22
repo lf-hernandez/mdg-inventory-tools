@@ -20,13 +20,15 @@ func (deps *HandlerDependencies) HandleGetItems(w http.ResponseWriter, r *http.R
 		items, err := repo.FetchDbItemsWithSearch(searchQuery)
 		if err != nil {
 			utils.LogError(fmt.Errorf("error fetching items with search query '%s': %w", searchQuery, err))
-			http.Error(w, fmt.Sprintf("Error fetching items: %v", err), http.StatusInternalServerError)
+			http.Error(w, "Error getting items", http.StatusInternalServerError)
+			return
 		}
 
 		err = utils.WriteJSONResponse(w, http.StatusOK, items, nil)
 		if err != nil {
-			utils.LogError(fmt.Errorf("get items error: %w", err))
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			utils.LogError(fmt.Errorf("get items json response error: %w", err))
+			http.Error(w, "Error getting items", http.StatusInternalServerError)
+			return
 		}
 	}
 
@@ -46,13 +48,14 @@ func (deps *HandlerDependencies) HandleGetItems(w http.ResponseWriter, r *http.R
 	totalCount, err := repo.FetchTotalItemCount()
 	if err != nil {
 		utils.LogError(fmt.Errorf("fetch total item count error: %w", err))
-		http.Error(w, fmt.Sprintf("Error fetching total item count: %v", err), http.StatusInternalServerError)
+		http.Error(w, "Error getting items", http.StatusInternalServerError)
 	}
 
 	items, err := repo.FetchDbItems(page, limit)
 	if err != nil {
 		utils.LogError(fmt.Errorf("get items error: %w", err))
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, "Error getting items", http.StatusInternalServerError)
+		return
 	}
 
 	response := GetItemsResponse{
@@ -62,8 +65,9 @@ func (deps *HandlerDependencies) HandleGetItems(w http.ResponseWriter, r *http.R
 
 	err = utils.WriteJSONResponse(w, http.StatusOK, response, nil)
 	if err != nil {
-		utils.LogError(fmt.Errorf("get items error: %w", err))
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		utils.LogError(fmt.Errorf("get items json response error: %w", err))
+		http.Error(w, "Error getting items", http.StatusInternalServerError)
+		return
 	}
 }
 
@@ -81,14 +85,15 @@ func (deps *HandlerDependencies) HandleGetItem(w http.ResponseWriter, r *http.Re
 			statusCode = http.StatusInternalServerError
 		}
 		utils.LogError(fmt.Errorf("fetch item error: %w", err))
-		http.Error(w, fmt.Sprintf("Error fetching item: %v", err), statusCode)
+		http.Error(w, "Error getting item", statusCode)
+		return
 	}
 
 	err = utils.WriteJSONResponse(w, http.StatusOK, item, nil)
-
 	if err != nil {
-		utils.LogError(fmt.Errorf("get item error: %w", err))
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		utils.LogError(fmt.Errorf("get item json response error: %w", err))
+		http.Error(w, "Error getting item", http.StatusInternalServerError)
+		return
 	}
 }
 
@@ -98,8 +103,9 @@ func (deps *HandlerDependencies) HandleUpdateItem(w http.ResponseWriter, r *http
 	var updatedItem models.Item
 	err := json.NewDecoder(r.Body).Decode(&updatedItem)
 	if err != nil {
-		utils.LogError(fmt.Errorf("decode updated item error: %w", err))
-		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		utils.LogError(fmt.Errorf("decode update item error: %w", err))
+		http.Error(w, "Invalid request", http.StatusBadRequest)
+		return
 	}
 
 	itemId := r.PathValue("id")
@@ -107,17 +113,21 @@ func (deps *HandlerDependencies) HandleUpdateItem(w http.ResponseWriter, r *http
 	err = repo.UpdateDbItem(&updatedItem)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			utils.LogError(fmt.Errorf("item to update not found error: %w", err))
-			http.Error(w, "Item not found", http.StatusNotFound)
+			utils.LogError(fmt.Errorf("update item not found error: %w", err))
+			http.Error(w, "Error updating item", http.StatusNotFound)
+			return
 		} else {
+			utils.LogError(fmt.Errorf("update item repo error: %w", err))
 			http.Error(w, fmt.Sprintf("Error updating item: %v", err), http.StatusInternalServerError)
+			return
 		}
 	}
 
 	err = utils.WriteJSONResponse(w, http.StatusOK, updatedItem, nil)
 	if err != nil {
-		utils.LogError(fmt.Errorf("update item error: %w", err))
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		utils.LogError(fmt.Errorf("update item json response error: %w", err))
+		http.Error(w, "Error updating item", http.StatusInternalServerError)
+		return
 	}
 }
 
@@ -128,22 +138,27 @@ func (deps *HandlerDependencies) HandleCreateItem(w http.ResponseWriter, r *http
 	err := json.NewDecoder(r.Body).Decode(&newItem)
 	if err != nil {
 		utils.LogError(fmt.Errorf("decode new item error: %w", err))
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		http.Error(w, "Invalid request", http.StatusBadRequest)
+		return
 	}
 
 	if err := utils.ValidateItem(&newItem); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		utils.LogError(fmt.Errorf("validate new item error: %w", err))
+		http.Error(w, "Invalid request", http.StatusBadRequest)
+		return
 	}
 
 	createdItem, err := repo.CreateDbItem(newItem)
 	if err != nil {
 		utils.LogError(fmt.Errorf("create item error: %w", err))
-		http.Error(w, fmt.Sprintf("Error creating item: %v", err), http.StatusInternalServerError)
+		http.Error(w, "Error creating item", http.StatusInternalServerError)
+		return
 	}
 
 	err = utils.WriteJSONResponse(w, http.StatusCreated, createdItem, nil)
 	if err != nil {
-		utils.LogError(fmt.Errorf("create item error: %w", err))
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		utils.LogError(fmt.Errorf("create item json response error: %w", err))
+		http.Error(w, "Error creating item", http.StatusInternalServerError)
+		return
 	}
 }

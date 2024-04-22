@@ -3,6 +3,7 @@ package handlers
 import (
 	"bytes"
 	"encoding/csv"
+	"fmt"
 	"net/http"
 	"time"
 
@@ -26,9 +27,9 @@ func (deps *HandlerDependencies) HandleExportCSV(w http.ResponseWriter, r *http.
 	} else {
 		items, err = repo.FetchDbItems(-1, -1)
 	}
-
 	if err != nil {
-		http.Error(w, "Error fetching items: "+err.Error(), http.StatusInternalServerError)
+		utils.LogError(fmt.Errorf("export items records not found error: %w", err))
+		http.Error(w, "Error exporting data", http.StatusInternalServerError)
 		return
 	}
 
@@ -66,13 +67,15 @@ func (deps *HandlerDependencies) HandleExportCSV(w http.ResponseWriter, r *http.
 
 	writer.Flush()
 	if err := writer.Error(); err != nil {
-		http.Error(w, "Error writing CSV: "+err.Error(), http.StatusInternalServerError)
+		utils.LogError(fmt.Errorf("export items error writing CSV: %w", err))
+		http.Error(w, "Error exporting data", http.StatusInternalServerError)
 		return
 	}
 
 	_, err = w.Write(csvData.Bytes())
 	if err != nil {
-		http.Error(w, "Error writing response: "+err.Error(), http.StatusInternalServerError)
+		utils.LogError(fmt.Errorf("export items json response error: %w", err))
+		http.Error(w, "Error exporting data", http.StatusInternalServerError)
 		return
 	}
 }
