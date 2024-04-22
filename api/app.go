@@ -21,23 +21,19 @@ type App struct {
 	Router  *http.ServeMux
 	DB      *sql.DB
 	Cors    *cors.Cors
-	Config  *config.Config
 	Address string
 }
 
-func (app *App) Init() error {
-	app.Config = config.LoadConfig()
-
-	utils.LogInfo("Connecting to %v", app.Config.Database.URL)
+func (app *App) Init(cfg *config.Config) error {
+	utils.LogInfo("Connecting to %v", cfg.Database.URL)
 	var err error
-	app.DB, err = sql.Open("postgres", app.Config.Database.URL)
+	app.DB, err = sql.Open("postgres", cfg.Database.URL)
 	if err != nil {
 		utils.LogError(fmt.Errorf("error opening connection to database: %v", err))
 		os.Exit(1)
 	}
-	defer app.DB.Close()
 
-	for i := 0; i < app.Config.Database.MaxRetry; i++ {
+	for i := 0; i < cfg.Database.MaxRetry; i++ {
 		err = app.DB.Ping()
 		if err == nil {
 			utils.LogInfo("Connection established!")
@@ -47,30 +43,31 @@ func (app *App) Init() error {
 		time.Sleep(5 * time.Second)
 	}
 	if err != nil {
-		utils.LogFatal("Failed to connect to database after %d attempts: %v", app.Config.Database.MaxRetry, err)
+		utils.LogFatal("Failed to connect to database after %d attempts: %v", cfg.Database.MaxRetry, err)
 		return err
 	}
 
-	port := app.Config.Port
+	port := cfg.Port
 	if port == "" {
 		utils.LogInfo("$PORT not set, defaulting to 8000")
-		app.Config.Port = "8000"
+		cfg.Port = "8000"
 	}
-	app.Address = ":" + app.Config.Port
+	app.Address = ":" + cfg.Port
 
 	app.Cors = cors.New(cors.Options{
-		AllowedOrigins:   app.Config.CORSOrigins,
+		AllowedOrigins:   cfg.CORSOrigins,
 		AllowCredentials: true,
 		AllowedMethods:   []string{"GET", "POST", "PUT"},
 		AllowedHeaders:   []string{"*"},
 	})
 
-	app.Router = initRouter(handlers.NewHandlerDependencies(app.DB, app.Config.JWTSecret))
+	app.Router = initRouter(handlers.NewHandlerDependencies(app.DB, cfg.JWTSecret))
 
 	return nil
 }
 
 func (app *App) Run() {
-	utils.LogInfo("Starting server on port %s", app.Config.Port)
+	defer app.DB.Close()
+	utils.LogInfo("Starting server on port %s", app.Address)
 	log.Fatal(http.ListenAndServe(app.Address, app.Cors.Handler(app.Router)))
 }
