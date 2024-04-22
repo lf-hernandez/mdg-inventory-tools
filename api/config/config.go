@@ -18,8 +18,8 @@ type DatabaseConfig struct {
 	MaxRetry int
 }
 
-func LoadConfig() Config {
-	return Config{
+func LoadConfig() *Config {
+	return &Config{
 		Database: DatabaseConfig{
 			URL:      getEnvOrDefault("DATABASE_URL", ""),
 			MaxRetry: 5,
