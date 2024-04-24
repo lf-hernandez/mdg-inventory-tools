@@ -11,7 +11,7 @@ func initRouter(deps *handlers.HandlerDependencies) *http.ServeMux {
 	mux := http.NewServeMux()
 
 	mux.Handle("POST /api/auth/login", http.HandlerFunc(deps.HandleLogin))
-	mux.Handle("POST /api/auth/signup", http.HandlerFunc(deps.HandleSignup))
+	// mux.Handle("POST /api/auth/signup", http.HandlerFunc(deps.HandleSignup))
 
 	mux.Handle("PUT /api/account/update-password", middleware.JwtMiddleware(deps.JwtSecret, http.HandlerFunc(deps.HandleUpdatePassword)))
 
