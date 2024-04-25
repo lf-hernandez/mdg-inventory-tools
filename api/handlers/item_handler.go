@@ -30,6 +30,7 @@ func (deps *HandlerDependencies) HandleGetItems(w http.ResponseWriter, r *http.R
 			http.Error(w, "Error getting items", http.StatusInternalServerError)
 			return
 		}
+		return
 	}
 
 	page, limit := 1, 10
