@@ -16,7 +16,6 @@ export const AddItemForm = () => {
     price: 0,
     quantity: 0,
   });
-  const [error, setError] = useState("");
   const { trackEvent } = useAnalytics();
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -52,16 +51,15 @@ export const AddItemForm = () => {
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    setError("");
     try {
       await ItemService.createItem(item);
       resetForm();
       toast.success("Item added successfully");
       trackEvent("Inventory Added");
-    } catch (error) {
-      setError("An error occurred while adding the item.");
-      toast.error("Failed to add item");
-      console.error("Error:", error);
+    } catch (e) {
+      toast.error(`An error occurred trying to add item`);
+      console.error("Error:", e);
+      trackEvent(`Add item failed: ${e}`);
     }
   };
 
@@ -148,13 +146,10 @@ export const AddItemForm = () => {
               onChange={handleChange}
             />
           </div>
-          <div className="flex justify-between items-center mt-4">
-            <p className={`text-red-500 text-sm ${error ? "block" : "hidden"}`}>
-              {error}
-            </p>
+          <div className="flex justify-end items-center mt-4">
             <button
               type="submit"
-              className="ml-auto bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+              className="rounded bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 my-4 w-full sm:w-auto"
             >
               Add Item
             </button>

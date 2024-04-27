@@ -72,8 +72,8 @@ export const UserDropdown = () => {
       <div
         ref={dropdownRef}
         className={`${
-          isDropdownVisible ? "block" : "hidden"
-        } absolute right-0 mt-2 bg-white border border-gray-300 shadow-lg rounded-lg text-gray-800`}
+          !isDropdownVisible && "hidden"
+        } absolute right-0 mt-2 bg-white border border-gray-300 shadow-lg rounded-lg text-gray-800 z-10`}
         style={{ top: "100%" }}
       >
         <div className="p-4">
@@ -83,14 +83,14 @@ export const UserDropdown = () => {
         <hr className="border-gray-300" />
         <button
           onClick={handleAccountSettings}
-          className="block w-full py-2 px-4 text-left text-black-500 hover:bg-gray-100 hover:text-black-600 font-semibold"
+          className="w-full py-2 px-4 text-left text-black-500 hover:bg-gray-100 hover:text-black-600 font-semibold"
         >
           Account settings
         </button>
         <hr className="border-gray-300" />
         <button
           onClick={handleLogout}
-          className="block w-full py-2 px-4 text-left text-red-500 hover:bg-gray-100 hover:text-red-600 font-semibold"
+          className="w-full py-2 px-4 text-left text-red-500 hover:bg-gray-100 hover:text-red-600 font-semibold"
         >
           Logout
         </button>

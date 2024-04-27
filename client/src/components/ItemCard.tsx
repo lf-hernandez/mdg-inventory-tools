@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { toast } from "react-hot-toast";
 
+import { useAnalytics } from "../hooks/useAnalytics";
 import { ItemService } from "../services/ItemService";
 import type { Item } from "../types";
 import { InputField } from "./InputField";
-import { useAnalytics } from "../hooks/useAnalytics";
 
 type Props = {
   item: Item;
@@ -166,7 +166,7 @@ export const ItemCard = ({ item, onUpdate }: Props) => {
         <div className="flex justify-end mt-4">
           <button
             type="submit"
-            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+            className="rounded bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 my-4 w-full sm:w-auto"
           >
             Save Changes
           </button>
