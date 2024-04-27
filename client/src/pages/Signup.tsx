@@ -4,6 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import { useCurrentUser } from "../hooks/useCurrentUser";
 import { AuthService } from "../services/AuthService";
+import { useAnalytics } from "../hooks/useAnalytics";
 
 const Signup = () => {
   const [name, setName] = useState("");
@@ -13,16 +14,29 @@ const Signup = () => {
   const navigate = useNavigate();
   const { onLogin } = useAuth();
   const { setUserDetails } = useCurrentUser();
+  const { trackEvent } = useAnalytics();
 
   const handleSignup = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+
+    const re =
+      /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
+
+    if (!re.test(email) || !password || !name) {
+      toast.error("Invalid name, email or password. Please try again.");
+      trackEvent("Login", { success: false });
+      return;
+    }
+
     try {
       const { token, user } = await AuthService.signup(name, email, password);
       onLogin(token);
       setUserDetails(user.id, user.name, user.email, user.role);
       toast.success("Signed up successfully.");
+      trackEvent("User Sign Up", { success: true, name, email });
       navigate("/");
     } catch (error) {
+      trackEvent("User Sign Up", { success: false, name, email });
       if (error instanceof Error) {
         toast.error(`Sign up failed. ${error.message}`);
       } else {
@@ -62,7 +76,7 @@ const Signup = () => {
           />
           <button
             type="submit"
-            className="w-full p-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+            className="w-full p-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:bg-gray-300 disabled:text-gray-500"
             disabled={!name || !email || !password}
           >
             Sign Up
