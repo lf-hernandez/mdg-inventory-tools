@@ -38,13 +38,9 @@ const Signup = () => {
       trackEvent("User Sign Up", { success: true, name, email });
       navigate("/");
     } catch (error) {
-      trackEvent("User Sign Up", { success: false, name, email });
-      if (error instanceof Error) {
-        toast.error(`Sign up failed. ${error.message}`);
-      } else {
-        toast.error("Sign up failed.");
-      }
+      toast.error("Sign up failed.");
       console.error("Error:", error);
+      trackEvent("User Sign Up", { success: false, name, email });
     }
   };
 
