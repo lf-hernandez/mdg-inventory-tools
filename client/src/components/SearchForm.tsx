@@ -86,24 +86,23 @@ export const SearchForm = () => {
               </button>
             )}
           </div>
-          <div>
-            {!searchResults && (
-              <button
-                className=" bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 mt-2 w-full sm:w-auto"
-                type="submit"
-              >
-                Search
-              </button>
-            )}
-            {searchResults && searchResults.length > 0 && (
-              <button
-                onClick={handleExport}
-                className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 mt-2 w-full sm:w-auto"
-              >
-                Export
-              </button>
-            )}
-          </div>
+
+          {!searchResults && (
+            <button
+              className="rounded bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 my-4 w-full sm:w-auto"
+              type="submit"
+            >
+              Search
+            </button>
+          )}
+          {searchResults && searchResults.length > 0 && (
+            <button
+              onClick={handleExport}
+              className="rounded bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 my-4 w-full sm:w-auto"
+            >
+              Export
+            </button>
+          )}
         </form>
       </div>
 

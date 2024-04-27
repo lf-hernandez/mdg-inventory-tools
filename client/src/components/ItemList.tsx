@@ -1,12 +1,12 @@
 import { saveAs } from "file-saver";
 import { useEffect, useState } from "react";
 
+import { useAnalytics } from "../hooks/useAnalytics";
 import { ItemService } from "../services/ItemService";
+import { LoadingSpinner } from "../shared";
 import type { Item } from "../types";
 import { ItemCard } from "./ItemCard";
 import { PaginationControls } from "./PaginationControls";
-import { useAnalytics } from "../hooks/useAnalytics";
-import { LoadingSpinner } from "../shared";
 
 export const ItemList = () => {
   const [items, setItems] = useState<Item[]>([]);
@@ -75,19 +75,18 @@ export const ItemList = () => {
     fetchItems();
 
     const sectionTitle = document.querySelector("#itemsListSection");
-    if (sectionTitle) {
+    if (sectionTitle && currentPage !== 1) {
       sectionTitle.scrollIntoView({ behavior: "smooth" });
     }
   }, [currentPage]);
 
   return (
     <section id="itemsListSection">
-      <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold my-4">Inventory</h2>
+      <div className="flex justify-end items-center">
         {items && items.length > 0 && (
           <button
             onClick={handleExport}
-            className="l-auto bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
+            className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 mb-4 rounded w-full sm:w-auto"
           >
             Export
           </button>

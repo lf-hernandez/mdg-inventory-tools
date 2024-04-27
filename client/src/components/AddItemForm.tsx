@@ -1,10 +1,10 @@
 import { ChangeEvent, useState } from "react";
 import { toast } from "react-hot-toast";
 
+import { useAnalytics } from "../hooks/useAnalytics";
 import { ItemService } from "../services/ItemService";
 import type { Item } from "../types";
 import { InputField } from "./InputField";
-import { useAnalytics } from "../hooks/useAnalytics";
 
 export const AddItemForm = () => {
   const [item, setItem] = useState<Partial<Item>>({
@@ -67,7 +67,6 @@ export const AddItemForm = () => {
 
   return (
     <div>
-      <h2 className="text-2xl font-bold mb-6">Add new item</h2>
       <section className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
