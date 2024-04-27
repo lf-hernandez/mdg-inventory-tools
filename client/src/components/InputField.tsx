@@ -3,9 +3,9 @@ import { ChangeEvent } from "react";
 type Props = {
   label: string;
   name: string;
-  type?: string;
   value: string | number;
   onChange: (e: ChangeEvent<HTMLInputElement & HTMLTextAreaElement>) => void;
+  type?: string;
   required?: boolean;
   multiline?: boolean;
   disabled?: boolean;
@@ -14,42 +14,59 @@ type Props = {
 export const InputField = ({
   label,
   name,
-  type = "text",
   value,
   onChange,
+  type = "text",
   required = false,
   multiline = false,
   disabled = false,
-}: Props) => (
-  <div>
-    <label
-      htmlFor={name}
-      className="block text-sm font-medium text-gray-700 mb-1"
-    >
-      {label}
-    </label>
-    {multiline ? (
-      <textarea
-        disabled={disabled}
-        rows={5}
-        name={name}
-        id={name}
-        value={value}
-        onChange={onChange}
-        required={required}
-        className="focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border border-gray-300 rounded-md py-2 px-3 text-base leading-tight"
-      />
-    ) : (
-      <input
-        disabled={disabled}
-        type={type}
-        name={name}
-        id={name}
-        value={value}
-        onChange={onChange}
-        required={required}
-        className="focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border border-gray-300 rounded-md py-2 px-3 text-base leading-tight"
-      />
-    )}
-  </div>
-);
+}: Props) => {
+  const inputClasses = `
+  focus:ring-blue-500
+  focus:border-blue-500
+  w-full
+  shadow-sm
+  sm:text-sm
+  border
+  border-gray-300
+  rounded-md
+  py-2
+  px-3
+  disabled:bg-gray-100
+  disabled:text-gray-500
+  disabled:border-none
+`;
+  return (
+    <div>
+      <label
+        htmlFor={name}
+        className="block text-sm font-medium text-gray-700 mb-1"
+      >
+        {label}
+      </label>
+      {multiline ? (
+        <textarea
+          disabled={disabled}
+          rows={5}
+          name={name}
+          id={name}
+          value={value}
+          onChange={onChange}
+          required={required}
+          className={inputClasses}
+        />
+      ) : (
+        <input
+          disabled={disabled}
+          type={type}
+          name={name}
+          id={name}
+          value={value}
+          onChange={onChange}
+          required={required}
+          className={inputClasses}
+        />
+      )}
+    </div>
+  );
+};

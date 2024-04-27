@@ -61,7 +61,7 @@ const AccountSettings = () => {
             <h2 className="text-2xl font-semibold">Account Settings</h2>
             <div className="my-4">
               <InputField
-                disabled
+                disabled={true}
                 label="Name"
                 value={user.name ?? ""}
                 name="name"
@@ -70,7 +70,7 @@ const AccountSettings = () => {
             </div>
             <div className="mb-4">
               <InputField
-                disabled
+                disabled={true}
                 label="Email"
                 value={user.email ?? ""}
                 name="email"
@@ -79,7 +79,7 @@ const AccountSettings = () => {
             </div>
             <div className="mb-4">
               <InputField
-                disabled
+                disabled={true}
                 label="Role"
                 value={user.role ?? ""}
                 name="role"
