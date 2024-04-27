@@ -50,6 +50,7 @@ func (deps *HandlerDependencies) HandleGetItems(w http.ResponseWriter, r *http.R
 	if err != nil {
 		utils.LogError(fmt.Errorf("fetch total item count error: %w", err))
 		http.Error(w, "Error getting items", http.StatusInternalServerError)
+		return
 	}
 
 	items, err := repo.FetchDbItems(page, limit)
