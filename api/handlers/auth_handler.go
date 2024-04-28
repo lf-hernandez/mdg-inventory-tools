@@ -31,6 +31,8 @@ func (deps *HandlerDependencies) HandleSignup(w http.ResponseWriter, r *http.Req
 		return
 	}
 
+	utils.LogInfo(fmt.Sprintf("Attempting signup for email: %s", signupReq.Email))
+
 	if len(strings.TrimSpace(signupReq.Name)) == 0 ||
 		len(signupReq.Name) > 50 ||
 		!utf8.ValidString(signupReq.Name) {
@@ -62,7 +64,7 @@ func (deps *HandlerDependencies) HandleSignup(w http.ResponseWriter, r *http.Req
 
 	newUser.Name = html.EscapeString(signupReq.Name)
 	newUser.Email = html.EscapeString(signupReq.Email)
-	newUser.Password = html.EscapeString(string(hashedPassword))
+	newUser.Password = string(hashedPassword)
 
 	userRepo := data.NewUserRepository(deps.DB)
 	inventoryRepo := data.NewInventoryRepository(deps.DB)
@@ -107,22 +109,29 @@ func (deps *HandlerDependencies) HandleSignup(w http.ResponseWriter, r *http.Req
 }
 
 func (deps *HandlerDependencies) HandleLogin(w http.ResponseWriter, r *http.Request) {
-	var loginUser models.User
-	err := json.NewDecoder(r.Body).Decode(&loginUser)
+	var loginRequest LoginRequest
+	err := json.NewDecoder(r.Body).Decode(&loginRequest)
 	if err != nil {
 		utils.LogError(fmt.Errorf("login decode error: %w", err))
 		http.Error(w, "Invalid request", http.StatusBadRequest)
 		return
 	}
 
-	utils.LogInfo(fmt.Sprintf("Attempting login for email: %s", loginUser.Email))
+	utils.LogInfo(fmt.Sprintf("Attempting login for email: %s", loginRequest.Email))
+
+	_, err = mail.ParseAddress(loginRequest.Email)
+	if err != nil {
+		utils.LogError(fmt.Errorf("login email validation failed: %w", err))
+		http.Error(w, "Invalid email address", http.StatusBadRequest)
+		return
+	}
 
 	repo := data.NewUserRepository(deps.DB)
 
-	user, err := repo.FetchUserByEmail(loginUser.Email)
+	user, err := repo.FetchUserByEmail(loginRequest.Email)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			utils.LogError(fmt.Errorf("login no user found error: email %s: %w", loginUser.Email, err))
+			utils.LogError(fmt.Errorf("login no user found error: email %s: %w", loginRequest.Email, err))
 			http.Error(w, "Unauthorized", http.StatusUnauthorized)
 			return
 		} else {
@@ -132,15 +141,20 @@ func (deps *HandlerDependencies) HandleLogin(w http.ResponseWriter, r *http.Requ
 		}
 	}
 
-	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(loginUser.Password))
+	if len(loginRequest.Password) < 8 {
+		utils.LogError(fmt.Errorf("login password validation failed"))
+		http.Error(w, "Password must be at least 8 characters long", http.StatusBadRequest)
+		return
+	}
+
+	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(loginRequest.Password))
 	if err != nil {
-		utils.LogError(fmt.Errorf("login error: password mismatch for email %s: %w", loginUser.Email, err))
+		utils.LogError(fmt.Errorf("login error: password mismatch for email %s: %w", loginRequest.Email, err))
 		http.Error(w, "Unauthorized", http.StatusUnauthorized)
 		return
 	}
 
 	tokenString, err := auth.CreateToken(user.ID, user.Role, deps.JwtSecret)
-
 	if err != nil {
 		utils.LogError(fmt.Errorf("login error: error creating token for user ID %s: %w", user.ID, err))
 		http.Error(w, "Error logging in", http.StatusInternalServerError)
