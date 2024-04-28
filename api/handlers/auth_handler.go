@@ -5,7 +5,12 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"html"
 	"net/http"
+	"net/mail"
+	"regexp"
+	"strings"
+	"unicode/utf8"
 
 	"golang.org/x/crypto/bcrypt"
 
@@ -17,20 +22,47 @@ import (
 
 func (deps *HandlerDependencies) HandleSignup(w http.ResponseWriter, r *http.Request) {
 	var newUser models.User
-	err := json.NewDecoder(r.Body).Decode(&newUser)
+	var signupReq SignupRequest
+
+	err := json.NewDecoder(r.Body).Decode(&signupReq)
 	if err != nil {
 		utils.LogError(fmt.Errorf("sign up decode error: %w", err))
 		http.Error(w, "Invalid request", http.StatusBadRequest)
 		return
 	}
 
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(newUser.Password), bcrypt.DefaultCost)
+	if len(strings.TrimSpace(signupReq.Name)) == 0 ||
+		len(signupReq.Name) > 50 ||
+		!utf8.ValidString(signupReq.Name) {
+		utils.LogError(fmt.Errorf("sign up name validation failed"))
+		http.Error(w, "Name must be a valid string with maximum length of 50 characters", http.StatusBadRequest)
+		return
+	}
+
+	_, err = mail.ParseAddress(signupReq.Email)
 	if err != nil {
-		utils.LogError(fmt.Errorf("generate hash error: %w", err))
+		utils.LogError(fmt.Errorf("sign up email validation failed: %w", err))
+		http.Error(w, "Invalid email address", http.StatusBadRequest)
+		return
+	}
+
+	re := regexp.MustCompile(`[!@#$%^&*(),.?":{}|<>]`)
+	if len(signupReq.Password) < 8 || !re.MatchString(signupReq.Password) {
+		utils.LogError(fmt.Errorf("sign up password validation failed"))
+		http.Error(w, "Password must be at least 8 characters long and contain at least one special character", http.StatusBadRequest)
+		return
+	}
+
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(signupReq.Password), bcrypt.DefaultCost)
+	if err != nil {
+		utils.LogError(fmt.Errorf("signup password hash generation error: %w", err))
 		http.Error(w, "Error creating user", http.StatusInternalServerError)
 		return
 	}
-	newUser.Password = string(hashedPassword)
+
+	newUser.Name = html.EscapeString(signupReq.Name)
+	newUser.Email = html.EscapeString(signupReq.Email)
+	newUser.Password = html.EscapeString(string(hashedPassword))
 
 	userRepo := data.NewUserRepository(deps.DB)
 	inventoryRepo := data.NewInventoryRepository(deps.DB)
