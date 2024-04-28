@@ -21,9 +21,7 @@ import (
 )
 
 func (deps *HandlerDependencies) HandleSignup(w http.ResponseWriter, r *http.Request) {
-	var newUser models.User
 	var signupReq SignupRequest
-
 	err := json.NewDecoder(r.Body).Decode(&signupReq)
 	if err != nil {
 		utils.LogError(fmt.Errorf("sign up decode error: %w", err))
@@ -62,13 +60,12 @@ func (deps *HandlerDependencies) HandleSignup(w http.ResponseWriter, r *http.Req
 		return
 	}
 
+	var newUser models.User
 	newUser.Name = html.EscapeString(signupReq.Name)
 	newUser.Email = html.EscapeString(signupReq.Email)
 	newUser.Password = string(hashedPassword)
 
-	userRepo := data.NewUserRepository(deps.DB)
 	inventoryRepo := data.NewInventoryRepository(deps.DB)
-
 	inventories, err := inventoryRepo.List()
 	if err != nil {
 		utils.LogError(fmt.Errorf("get inventories error: %w", err))
@@ -77,6 +74,7 @@ func (deps *HandlerDependencies) HandleSignup(w http.ResponseWriter, r *http.Req
 	}
 
 	// TODO: Refactor if signup/create user flow is enhanced and specifies which inventories a user has access to
+	userRepo := data.NewUserRepository(deps.DB)
 	createdUser, err := userRepo.CreateUser(newUser, inventories)
 	if err != nil {
 		utils.LogError(fmt.Errorf("create user error: %w", err))
@@ -127,7 +125,6 @@ func (deps *HandlerDependencies) HandleLogin(w http.ResponseWriter, r *http.Requ
 	}
 
 	repo := data.NewUserRepository(deps.DB)
-
 	user, err := repo.FetchUserByEmail(loginRequest.Email)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -182,8 +179,6 @@ func (deps *HandlerDependencies) HandleLogin(w http.ResponseWriter, r *http.Requ
 }
 
 func (deps *HandlerDependencies) HandleUpdatePassword(w http.ResponseWriter, r *http.Request) {
-	repo := data.NewUserRepository(deps.DB)
-
 	var passwordResetReq PasswordResetRequest
 	err := json.NewDecoder(r.Body).Decode(&passwordResetReq)
 	if err != nil {
@@ -199,6 +194,7 @@ func (deps *HandlerDependencies) HandleUpdatePassword(w http.ResponseWriter, r *
 		return
 	}
 
+	repo := data.NewUserRepository(deps.DB)
 	user, err := repo.FetchUserByID(userID)
 	if err != nil {
 		utils.LogError(fmt.Errorf("update password user not found error: %w", err))
