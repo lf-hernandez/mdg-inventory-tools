@@ -5,6 +5,7 @@ import (
 	"encoding/csv"
 	"fmt"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/lf-hernandez/mdg-inventory-tools/api/data"
@@ -57,8 +58,8 @@ func (deps *HandlerDependencies) HandleExportCSV(w http.ResponseWriter, r *http.
 			item.PurchaseOrder,
 			item.Description,
 			item.Category,
-			utils.FormatFloat(item.Price),
-			utils.FormatInt(item.Quantity),
+			strconv.FormatFloat(*item.Price, 'f', 2, 64),
+			strconv.Itoa(*item.Quantity),
 			item.Status,
 			item.RepairOrderNumber,
 			item.Condition,
