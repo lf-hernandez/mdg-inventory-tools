@@ -51,6 +51,7 @@ export const UpdatePasswordForm = ({ onSubmit, onBack }: Props) => {
           placeholder="Current Password"
           className="w-full p-2 mb-3 border rounded"
           required
+          autoComplete="current-password"
         />
         <input
           type="password"
@@ -67,6 +68,7 @@ export const UpdatePasswordForm = ({ onSubmit, onBack }: Props) => {
           placeholder="Confirm New Password"
           className="w-full p-2 mb-3 border rounded"
           required
+          autoComplete="new-password"
         />
         <button
           type="submit"

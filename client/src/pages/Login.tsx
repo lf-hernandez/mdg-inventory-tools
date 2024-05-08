@@ -56,6 +56,7 @@ const LoginComponent = () => {
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Email"
             className="w-full p-2 mb-3 border rounded"
+            autoComplete="username"
           />
           <input
             required
@@ -64,6 +65,7 @@ const LoginComponent = () => {
             onChange={(e) => setPassword(e.target.value)}
             placeholder="Password"
             className="w-full p-2 mb-3 border rounded"
+            autoComplete="current-password"
           />
           <button
             type="submit"
