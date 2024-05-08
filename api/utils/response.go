@@ -16,6 +16,9 @@ func WriteJSONResponse(w http.ResponseWriter, status int, data any, headers http
 	}
 
 	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("X-Content-Type-Options", "nosniff")
+	w.Header().Set("Strict-Transport-Security", "max-age=31536000")
+	w.Header().Set("Content-Security-Policy", "frame-ancestors 'none';default-src 'self';")
 	w.WriteHeader(status)
 	w.Write(b)
 
