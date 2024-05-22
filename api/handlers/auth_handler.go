@@ -138,11 +138,11 @@ func (deps *HandlerDependencies) HandleLogin(w http.ResponseWriter, r *http.Requ
 		}
 	}
 
-	if len(loginRequest.Password) < 8 {
-		utils.LogError(fmt.Errorf("login password validation failed"))
-		http.Error(w, "Password must be at least 8 characters long", http.StatusBadRequest)
-		return
-	}
+	//if len(loginRequest.Password) < 8 {
+	//	utils.LogError(fmt.Errorf("login password validation failed"))
+	//	http.Error(w, "Password must be at least 8 characters long", http.StatusBadRequest)
+	//	return
+	//}
 
 	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(loginRequest.Password))
 	if err != nil {

@@ -22,10 +22,6 @@ jobs:
         uses: securego/gosec@master
         with:
           args: "-no-fail -fmt sarif -out results.sarif ./..."
-      - name: Upload SARIF file
-        uses: github/codeql-action/upload-sarif@v2
-        with:
-          sarif_file: results.sarif
       - name: Setup environment
         uses: actions/setup-go@v4
         with:
